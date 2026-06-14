@@ -32,8 +32,12 @@ export interface PointerSample {
 
 /** Drawing surface and environment handed to a scene on mount. */
 export interface SceneContext {
+  /** Persistent layer: accumulates the composition. */
   canvas: HTMLCanvasElement;
   ctx: CanvasRenderingContext2D;
+  /** Transient FX layer, cleared every frame (particles, glints, overlays). */
+  fxCanvas: HTMLCanvasElement;
+  fx: CanvasRenderingContext2D;
   /** Backing-store size in device pixels. */
   width: number;
   height: number;
@@ -75,6 +79,11 @@ export interface Scene {
   setPalette(index: number): void;
   setSymmetry(level: number): void;
   setAuto(on: boolean): void;
+  /**
+   * Optional hook fired when the scene changes palette on its own (e.g. a
+   * double-tap "action forte"), so the UI and settings can stay in sync.
+   */
+  onPaletteChange?: (index: number) => void;
   /** Trigger an animated return to a calm/empty state. */
   reset(): void;
   unmount(): void;

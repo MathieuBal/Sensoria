@@ -24,6 +24,12 @@ export class Controls {
     this.syncFromSettings();
   }
 
+  /** Reflect a palette change initiated by the scene (e.g. double-tap). */
+  reflectPalette(index: number): void {
+    this.settings.set('palette', index);
+    this.markPressed('palettes', index);
+  }
+
   /** Fade the first-run hint once the user has interacted. */
   dismissHint(): void {
     if (this.hintDismissed) return;

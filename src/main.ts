@@ -17,6 +17,8 @@ import { Controls } from './ui/Controls';
  */
 
 const canvas = document.getElementById('stage') as HTMLCanvasElement;
+const fxCanvas = document.getElementById('fx') as HTMLCanvasElement;
+const cursorEl = document.getElementById('cursor') as HTMLElement;
 
 const settings = new SettingsStore();
 const perf = new PerformanceMonitor();
@@ -27,7 +29,7 @@ const perfView = {
   }
 };
 
-const sceneManager = new SceneManager(canvas, createLiveSettingsView(), perfView);
+const sceneManager = new SceneManager(canvas, fxCanvas, createLiveSettingsView(), perfView);
 
 function createLiveSettingsView() {
   // SceneManager needs a mutable settings object kept in sync with the store,
@@ -43,12 +45,14 @@ function resize(): void {
   dpr = Math.min(window.devicePixelRatio || 1, 2.5);
   const w = Math.round(window.innerWidth * dpr);
   const h = Math.round(window.innerHeight * dpr);
-  if (canvas.width !== w || canvas.height !== h) {
-    canvas.width = w;
-    canvas.height = h;
+  for (const c of [canvas, fxCanvas]) {
+    if (c.width !== w || c.height !== h) {
+      c.width = w;
+      c.height = h;
+    }
+    c.style.width = `${window.innerWidth}px`;
+    c.style.height = `${window.innerHeight}px`;
   }
-  canvas.style.width = `${window.innerWidth}px`;
-  canvas.style.height = `${window.innerHeight}px`;
   sceneManager.resize(w, h, dpr);
 }
 
@@ -63,10 +67,32 @@ resize();
 
 const controls = new Controls(settings, scene, capture);
 
+// Keep the palette UI in sync when the scene cycles palette itself (double-tap).
+scene.onPaletteChange = (i) => controls.reflectPalette(i);
+
 input.on((sample) => {
   controls.dismissHint();
   sceneManager.input(sample);
 });
+
+// --- Soft cursor halo (mouse only) -----------------------------------------
+window.addEventListener(
+  'pointermove',
+  (e) => {
+    if (e.pointerType !== 'mouse') {
+      cursorEl.style.opacity = '0';
+      return;
+    }
+    cursorEl.style.opacity = '1';
+    cursorEl.style.transform = `translate(${e.clientX}px, ${e.clientY}px)`;
+  },
+  { passive: true }
+);
+window.addEventListener('pointerdown', (e) => {
+  if (e.pointerType === 'mouse') cursorEl.classList.add('is-down');
+});
+window.addEventListener('pointerup', () => cursorEl.classList.remove('is-down'));
+window.addEventListener('pointerleave', () => (cursorEl.style.opacity = '0'));
 
 // --- Frame loop -------------------------------------------------------------
 const loop = new RenderLoop((dt, time) => {

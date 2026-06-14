@@ -8,6 +8,8 @@ import type { PointerSample, Scene, SceneContext, SceneSettings } from './types'
 export class SceneManager {
   private readonly canvas: HTMLCanvasElement;
   private readonly ctx: CanvasRenderingContext2D;
+  private readonly fxCanvas: HTMLCanvasElement;
+  private readonly fx: CanvasRenderingContext2D;
   private readonly settings: SceneSettings;
   private readonly perf: { quality: number };
   private current: Scene | null = null;
@@ -17,6 +19,7 @@ export class SceneManager {
 
   constructor(
     canvas: HTMLCanvasElement,
+    fxCanvas: HTMLCanvasElement,
     settings: SceneSettings,
     perf: { quality: number }
   ) {
@@ -24,6 +27,10 @@ export class SceneManager {
     const ctx = canvas.getContext('2d', { alpha: false });
     if (!ctx) throw new Error('Canvas 2D context unavailable');
     this.ctx = ctx;
+    this.fxCanvas = fxCanvas;
+    const fx = fxCanvas.getContext('2d', { alpha: true });
+    if (!fx) throw new Error('Canvas 2D context unavailable');
+    this.fx = fx;
     this.settings = settings;
     this.perf = perf;
   }
@@ -34,6 +41,8 @@ export class SceneManager {
     const context: SceneContext = {
       canvas: this.canvas,
       ctx: this.ctx,
+      fxCanvas: this.fxCanvas,
+      fx: this.fx,
       width: this.width,
       height: this.height,
       dpr: this.dpr,
