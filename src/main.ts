@@ -3,7 +3,6 @@ import { InputManager } from './core/InputManager';
 import { RenderLoop } from './core/RenderLoop';
 import { SettingsStore } from './core/SettingsStore';
 import { SceneManager } from './core/SceneManager';
-import { CaptureManager } from './core/CaptureManager';
 import { PerformanceMonitor } from './core/PerformanceMonitor';
 import { Controls } from './ui/Controls';
 import { Gallery } from './ui/Gallery';
@@ -12,14 +11,18 @@ import { SCENES } from './scenes/registry';
 /**
  * Sensoria — application shell.
  *
- * A home gallery (Phase 1 navigation) opens any tableau full-screen on the
- * shared socle (input / render / settings). Each tableau is an interchangeable
- * Scene; switching is just mount/unmount on the SceneManager.
+ * A home gallery (Constella hub) opens any tableau full-screen on the shared
+ * socle (input / render / settings). Each tableau is an interchangeable Scene;
+ * switching is just mount/unmount on the SceneManager. The experience is
+ * ephemeral: nothing is saved, the composition clears on exit.
  */
+
+const pad2 = (n: number): string => (n < 10 ? '0' : '') + n;
 
 const canvas = document.getElementById('stage') as HTMLCanvasElement;
 const fxCanvas = document.getElementById('fx') as HTMLCanvasElement;
 const cursorEl = document.getElementById('cursor') as HTMLElement;
+const panelEl = document.getElementById('panel') as HTMLElement;
 
 const settings = new SettingsStore();
 const perf = new PerformanceMonitor();
@@ -35,8 +38,7 @@ settings.subscribe((s) => Object.assign(settingsView, s));
 
 const sceneManager = new SceneManager(canvas, fxCanvas, settingsView, perfView);
 const input = new InputManager(canvas, () => dpr);
-const capture = new CaptureManager(canvas);
-const controls = new Controls(settings, capture);
+const controls = new Controls(settings);
 
 // --- Responsive backing store (device pixels, capped DPR for perf) ----------
 let dpr = 1;
@@ -64,31 +66,30 @@ const gallery = new Gallery(
 );
 
 function enterScene(id: string): void {
-  const meta = SCENES.find((m) => m.id === id);
+  const index = SCENES.findIndex((m) => m.id === id);
+  const meta = SCENES[index];
   if (!meta?.available || !meta.create) return;
+  // Knob resets to its middle level on each entry; palette/auto/reduced persist.
+  settings.set('symmetry', 1);
   const scene = meta.create();
   sceneManager.mount(scene);
-  controls.bind(scene);
-  controls.showHint();
-  document.body.classList.add('in-scene');
+  controls.bind(scene, pad2(index + 1));
+  panelEl.hidden = true;
   gallery.hide();
 }
 
 function exitScene(): void {
   sceneManager.unmountCurrent();
-  (document.getElementById('panel') as HTMLElement).hidden = true;
-  document.body.classList.remove('in-scene');
+  panelEl.hidden = true;
   gallery.show();
 }
 
 document.getElementById('back')?.addEventListener('click', exitScene);
 window.addEventListener('keydown', (e) => {
-  if (e.key === 'Escape' && document.body.classList.contains('in-scene')) {
-    // Escape closes an open panel first, otherwise returns to the gallery.
-    const panel = document.getElementById('panel') as HTMLElement;
-    if (!panel.hidden) panel.hidden = true;
-    else exitScene();
-  }
+  if (e.key !== 'Escape' || !document.body.classList.contains('in-scene')) return;
+  // Escape closes an open panel first, otherwise returns to the gallery.
+  if (!panelEl.hidden) panelEl.hidden = true;
+  else exitScene();
 });
 
 // --- Input ------------------------------------------------------------------
@@ -98,7 +99,7 @@ input.on((sample) => {
   sceneManager.input(sample);
 });
 
-// Soft cursor halo (mouse only, scene only via CSS).
+// Soft cursor halo (mouse only; hidden outside a scene via CSS).
 window.addEventListener(
   'pointermove',
   (e) => {

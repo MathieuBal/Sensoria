@@ -2,6 +2,8 @@ import type { Scene } from '../core/types';
 import { MosaicScene } from './MosaicScene';
 import { LiquidGlassScene } from './LiquidGlassScene';
 import { MagneticScene } from './MagneticScene';
+import { NightLakeScene } from './NightLakeScene';
+import { LightGardenScene } from './LightGardenScene';
 
 /** Gallery card metadata for a tableau (§4 catalogue). */
 export interface SceneMeta {
@@ -62,16 +64,18 @@ export const SCENES: SceneMeta[] = [
   {
     id: 'light-garden',
     name: 'Jardin de lumière',
-    tagline: 'Le geste fait pousser branches et fleurs.',
+    tagline: 'Le geste fait pousser des branches de lumière qui éclosent.',
     gradient: 'linear-gradient(135deg,#0f2027,#2c5364,#a8e063,#f9f586)',
-    available: false
+    available: true,
+    create: () => new LightGardenScene()
   },
   {
     id: 'night-lake',
     name: 'Lac nocturne',
-    tagline: 'Eau sombre, reflets, ondes et lumières.',
+    tagline: 'Eau sombre : effleure-la et les ondes se reflètent.',
     gradient: 'linear-gradient(135deg,#02111b,#0a2342,#2ca6a4,#8ce3ff)',
-    available: false
+    available: true,
+    create: () => new NightLakeScene()
   },
   {
     id: 'living-paint',

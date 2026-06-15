@@ -32,6 +32,11 @@ export class LiquidGlassScene implements Scene {
   readonly paletteCount = PALETTES.length;
   readonly knobLabel = 'Buée';
   readonly knobOptions = ['Légère', 'Moyenne', 'Dense'] as const;
+  readonly supportsAuto = false;
+  readonly hint = {
+    title: 'Essuie la buée',
+    sub: 'Glisse pour essuyer · double-tap : pluie · Échap : réglages'
+  };
 
   onPaletteChange?: (index: number) => void;
 

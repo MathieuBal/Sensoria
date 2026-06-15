@@ -34,6 +34,11 @@ export class MagneticScene implements Scene {
   readonly paletteCount = PALETTES.length;
   readonly knobLabel = 'Densité';
   readonly knobOptions = ['Fin', 'Moyen', 'Dense'] as const;
+  readonly supportsAuto = false;
+  readonly hint = {
+    title: 'Attire les grains',
+    sub: 'Maintiens pour attirer · double-tap : pôle · Échap : réglages'
+  };
 
   onPaletteChange?: (index: number) => void;
 

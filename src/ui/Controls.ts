@@ -1,53 +1,53 @@
 import type { SettingsStore } from '../core/SettingsStore';
 import type { Scene } from '../core/types';
-import type { CaptureManager } from '../core/CaptureManager';
 import { PALETTES } from '../palettes';
 
 /**
- * Binds the floating glass panel to whichever tableau is active. The palette
- * set is shared across scenes; the secondary "knob" (symmetry / density / fog…)
- * is rebuilt from each scene's own labels on {@link bind}.
+ * Binds the floating glass panel + onboarding to whichever tableau is active.
+ * Palettes are shared across scenes; the secondary "knob" and the onboarding
+ * copy are rebuilt from each scene on {@link bind}. "Mode automatique" is shown
+ * only for scenes that support it. No capture/share — the experience is
+ * ephemeral by design.
  */
 export class Controls {
   private scene: Scene | null = null;
   private hintDismissed = false;
 
-  constructor(
-    private readonly settings: SettingsStore,
-    private readonly capture: CaptureManager
-  ) {
+  constructor(private readonly settings: SettingsStore) {
     this.buildPalettes();
     this.wirePanelToggle();
     this.wireSwitches();
     this.wireActions();
   }
 
-  /** Attach the panel to a freshly mounted scene. */
-  bind(scene: Scene): void {
+  /** Attach the panel to a freshly mounted scene (num = registry position). */
+  bind(scene: Scene, num: string): void {
     this.scene = scene;
     scene.onPaletteChange = (i) => this.reflectPalette(i);
     this.$('scene-title').textContent = scene.name;
+    this.$('scene-num').textContent = `Tableau ${num}`;
     this.buildKnob(scene);
+    (this.$('auto-row') as HTMLElement).style.display = scene.supportsAuto ? 'flex' : 'none';
+    this.$('hint-title').textContent = scene.hint.title;
+    this.$('hint-sub').textContent = scene.hint.sub;
+    this.showHint();
     this.syncFromSettings();
-    this.hintDismissed = false;
   }
 
-  /** Reflect a palette change initiated by the scene (e.g. double-tap). */
   reflectPalette(index: number): void {
     this.settings.set('palette', index);
     this.markPressed('palettes', index);
   }
 
-  /** Fade the first-run hint once the user has interacted. */
+  showHint(): void {
+    this.hintDismissed = false;
+    document.getElementById('hint')?.classList.remove('is-hidden');
+  }
+
   dismissHint(): void {
     if (this.hintDismissed) return;
     this.hintDismissed = true;
     document.getElementById('hint')?.classList.add('is-hidden');
-  }
-
-  showHint(): void {
-    this.hintDismissed = false;
-    document.getElementById('hint')?.classList.remove('is-hidden');
   }
 
   private $(id: string): HTMLElement {
@@ -96,9 +96,6 @@ export class Controls {
     };
     this.$('menu-toggle').addEventListener('click', toggle);
     this.$('panel-close').addEventListener('click', () => (panel.hidden = true));
-    window.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape' && this.scene) toggle();
-    });
   }
 
   private wireSwitches(): void {
@@ -115,9 +112,6 @@ export class Controls {
 
   private wireActions(): void {
     this.$('reset').addEventListener('click', () => this.scene?.reset());
-    this.$('capture').addEventListener('click', () =>
-      this.capture.savePng(this.scene?.id ?? 'sensoria')
-    );
     this.$('fullscreen').addEventListener('click', () => this.toggleFullscreen());
   }
 

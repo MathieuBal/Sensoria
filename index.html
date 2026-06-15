@@ -6,54 +6,100 @@
       name="viewport"
       content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"
     />
-    <meta name="theme-color" content="#0b0d14" />
+    <meta name="theme-color" content="#02020c" />
     <meta name="description" content="Sensoria — galerie d'expériences interactives sensorielles." />
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <link rel="icon" type="image/svg+xml" href="/icon.svg" />
-    <title>Sensoria — Mosaïque infinie</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600&family=Inter:wght@400;500&family=JetBrains+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <title>Sensoria — Galerie sensorielle</title>
   </head>
   <body>
-    <canvas id="stage" aria-label="Tableau interactif Mosaïque infinie"></canvas>
-    <!-- Transient FX layer (particles, reset bloom) drawn above the composition. -->
-    <canvas id="fx" aria-hidden="true"></canvas>
-    <!-- Depth vignette + soft cursor halo, both purely decorative. -->
-    <div id="vignette" aria-hidden="true"></div>
-    <div id="cursor" aria-hidden="true"></div>
+    <!-- ============================== HUB ============================== -->
+    <section id="gallery" class="hub">
+      <div id="starfield" class="hub__stars" aria-hidden="true"></div>
+      <div class="hub__halo" aria-hidden="true"></div>
 
-    <!-- First-run hint, fades away on first interaction (§2 Immédiate). -->
-    <div id="hint" class="hint">
-      <span>Touchez et déplacez</span>
-    </div>
+      <div class="hub__inner">
+        <header class="hub__header">
+          <div class="brand">
+            <span class="brand__mark" aria-hidden="true">✦</span>
+            <span class="brand__name">SENSORIA</span>
+          </div>
+          <span class="hub__kicker">Observatoire sensoriel</span>
+        </header>
 
-    <!-- Home gallery (§2.1). Cards are injected from the scene registry. -->
-    <section id="gallery" class="gallery">
-      <header class="gallery__head">
-        <h1 class="gallery__title">Sensoria</h1>
-        <p class="gallery__sub">Galerie d'expériences interactives sensorielles</p>
-      </header>
-      <div id="gallery-grid" class="gallery__grid"></div>
+        <section class="hero">
+          <div class="hero__eyebrow"><span aria-hidden="true">✦</span><span>Galerie sensorielle</span></div>
+          <h1 class="hero__title">Le geste<br />devient lumière.</h1>
+          <p class="hero__manifest">
+            Sensoria réunit des tableaux interactifs qui répondent à ta main. Touche, glisse,
+            relâche — la matière s'anime, vibre, puis s'efface doucement. Rien à enregistrer,
+            rien à partager. Juste l'instant.
+          </p>
+          <div class="hero__stats">
+            <span>16 tableaux</span><span class="sep">/</span>
+            <span class="hl">05 jouables</span><span class="sep">/</span>
+            <span>PWA · plein écran · hors ligne</span>
+          </div>
+        </section>
+
+        <section>
+          <div class="collection__bar">
+            <span>La collection</span>
+            <span id="collection-count">05 / 16 jouables</span>
+          </div>
+          <div id="gallery-grid" class="collection__grid"></div>
+
+          <footer class="hub__footer">
+            <span>Sensoria — prototype · Canvas 2D · installable hors ligne</span>
+            <span class="hub__footer-italic">Conçu pour être ressenti, pas collectionné.</span>
+          </footer>
+        </section>
+      </div>
     </section>
 
-    <!-- Discreet return to the gallery (§2.1). -->
+    <!-- ============================ SCENE ============================= -->
+    <canvas id="stage" aria-label="Tableau interactif Sensoria"></canvas>
+    <canvas id="fx" aria-hidden="true"></canvas>
+    <div id="vignette" aria-hidden="true"></div>
+    <div id="scene-scrim" aria-hidden="true"></div>
+    <div id="cursor" aria-hidden="true"></div>
+
     <button id="back" class="back-btn" aria-label="Retour à la galerie">
       <span aria-hidden="true">←</span> Galerie
     </button>
 
-    <!-- Discreet control to reveal settings (§2 Discret). -->
     <button id="menu-toggle" class="menu-toggle" aria-label="Réglages" title="Réglages (Échap)">
-      <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true">
+      <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
         <circle cx="12" cy="5" r="1.8" fill="currentColor" />
         <circle cx="12" cy="12" r="1.8" fill="currentColor" />
         <circle cx="12" cy="19" r="1.8" fill="currentColor" />
       </svg>
     </button>
 
-    <!-- Floating frosted-glass panel (§7 Direction artistique). -->
+    <!-- Scene-specific onboarding (§2 Immédiate). -->
+    <div id="hint" class="onboard">
+      <div class="onboard__inner">
+        <div class="onboard__ring" aria-hidden="true"></div>
+        <span id="hint-title" class="onboard__title"></span>
+        <span id="hint-sub" class="onboard__sub"></span>
+      </div>
+    </div>
+
+    <!-- Scene-aware settings panel. -->
     <aside id="panel" class="panel" hidden>
       <header class="panel__head">
-        <h1 id="scene-title">Tableau</h1>
+        <div>
+          <h1 id="scene-title">Tableau</h1>
+          <span id="scene-num" class="panel__num">Tableau 01</span>
+        </div>
         <button id="panel-close" class="icon-btn" aria-label="Fermer">✕</button>
       </header>
 
@@ -63,26 +109,29 @@
       </section>
 
       <section class="control">
-        <span class="control__label" id="knob-label">Intensité</span>
+        <span class="control__label" id="knob-label">Réglage</span>
         <div id="symmetry" class="seg" role="group" aria-label="Réglage"></div>
       </section>
 
       <section class="control control--row">
-        <label class="switch">
-          <input type="checkbox" id="auto" />
+        <label class="switch" id="auto-row">
           <span>Mode automatique</span>
+          <input type="checkbox" id="auto" />
         </label>
         <label class="switch">
-          <input type="checkbox" id="reduced" />
           <span>Effets réduits</span>
+          <input type="checkbox" id="reduced" />
         </label>
       </section>
 
       <section class="control control--actions">
-        <button id="reset" class="btn">Reset</button>
-        <button id="capture" class="btn">Capturer PNG</button>
+        <button id="reset" class="btn">Réinitialiser</button>
         <button id="fullscreen" class="btn">Plein écran</button>
       </section>
+
+      <p class="panel__note">
+        Rien n'est gardé. En quittant le tableau, la composition s'efface — c'est voulu.
+      </p>
     </aside>
 
     <script type="module" src="/src/main.ts"></script>

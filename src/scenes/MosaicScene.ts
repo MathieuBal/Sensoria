@@ -6,7 +6,7 @@ const lerp = (a: number, b: number, t: number): number => a + (b - a) * t;
 const easeOutCubic = (t: number): number => 1 - Math.pow(1 - t, 3);
 
 /** Background colour, kept in sync with the PWA theme colour (#0b0d14). */
-const BG: Rgb = { r: 11, g: 13, b: 20 };
+const BG: Rgb = { r: 6, g: 7, b: 16 };
 
 /** Rotational sectors per symmetry level. Each is also mirrored (dihedral). */
 const SECTORS = [4, 6, 8];
@@ -71,6 +71,11 @@ export class MosaicScene implements Scene {
   readonly paletteCount = PALETTES.length;
   readonly knobLabel = 'Symétrie';
   readonly knobOptions = ['Doux', 'Riche', 'Dense'] as const;
+  readonly supportsAuto = true;
+  readonly hint = {
+    title: 'Touche et glisse',
+    sub: 'Double-tap : nouvelle ambiance · Échap : réglages'
+  };
 
   onPaletteChange?: (index: number) => void;
 
