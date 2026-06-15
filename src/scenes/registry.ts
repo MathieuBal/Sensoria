@@ -4,6 +4,14 @@ import { LiquidGlassScene } from './LiquidGlassScene';
 import { MagneticScene } from './MagneticScene';
 import { NightLakeScene } from './NightLakeScene';
 import { LightGardenScene } from './LightGardenScene';
+import { BubbleScene } from './BubbleScene';
+import { CrystalScene } from './CrystalScene';
+import { CosmosScene } from './CosmosScene';
+import { ChromaScene } from './ChromaScene';
+import { JellyfishScene } from './JellyfishScene';
+import { ClothScene } from './ClothScene';
+import { PowderScene } from './PowderScene';
+import { SoundScene } from './SoundScene';
 
 /** Gallery card metadata for a tableau (§4 catalogue). */
 export interface SceneMeta {
@@ -18,9 +26,9 @@ export interface SceneMeta {
 }
 
 /**
- * The full catalogue (§4). Implemented tableaux expose a `create` factory;
- * the rest are shown as "Bientôt" placeholders so the gallery already reflects
- * the product's ambition. Adding a tableau = write a Scene + flip `available`.
+ * The full catalogue (§4), in registry order. 13 tableaux are playable; the
+ * remaining 3 (living-paint, paper-cut, terrarium) are shown as "Bientôt".
+ * Adding a tableau = write a Scene + give it a `create` factory here.
  */
 export const SCENES: SceneMeta[] = [
   {
@@ -50,16 +58,18 @@ export const SCENES: SceneMeta[] = [
   {
     id: 'chromaflow',
     name: 'Chromaflow',
-    tagline: 'Rubans de couleur, encre et aurore boréale.',
+    tagline: 'Des rubans de couleur suivent un champ de flux vivant.',
     gradient: 'linear-gradient(135deg,#ff8a00,#e52e71,#9b5de5,#00bbf9)',
-    available: false
+    available: true,
+    create: () => new ChromaScene()
   },
   {
     id: 'cloth',
     name: 'Toile de tissu',
-    tagline: 'Surface élastique, creux, tension et rebond.',
+    tagline: 'Une étoffe suspendue que tu pousses, creuses et tends.',
     gradient: 'linear-gradient(135deg,#3a1c71,#d76d77,#ffaf7b)',
-    available: false
+    available: true,
+    create: () => new ClothScene()
   },
   {
     id: 'light-garden',
@@ -87,44 +97,50 @@ export const SCENES: SceneMeta[] = [
   {
     id: 'sound-ribbons',
     name: 'Rubans sonores',
-    tagline: 'Le mouvement devient instrument visuel.',
+    tagline: 'Ton geste devient une onde qui vibre comme un son.',
     gradient: 'linear-gradient(135deg,#ff0080,#ff8c00,#40e0d0)',
-    available: false
+    available: true,
+    create: () => new SoundScene()
   },
   {
     id: 'crystals',
     name: 'Cristaux',
-    tagline: 'Germes qui poussent, fusionnent et se brisent.',
+    tagline: 'Chaque touche fait givrer un cristal à facettes.',
     gradient: 'linear-gradient(135deg,#8e2de2,#4a00e0,#00d2ff)',
-    available: false
+    available: true,
+    create: () => new CrystalScene()
   },
   {
     id: 'cosmic-portal',
     name: 'Portail cosmique',
-    tagline: 'Étoiles, trous noirs et supernovas.',
+    tagline: 'Des étoiles spiralent ; ton doigt courbe la gravité.',
     gradient: 'linear-gradient(135deg,#000428,#004e92,#9d4edd)',
-    available: false
+    available: true,
+    create: () => new CosmosScene()
   },
   {
     id: 'reactive-powder',
     name: 'Poudre réactive',
-    tagline: 'Poudre, fumée et réactions en chaîne.',
+    tagline: 'Remue la poudre ; une étincelle se propage en chaîne.',
     gradient: 'linear-gradient(135deg,#232526,#ff512f,#f09819)',
-    available: false
+    available: true,
+    create: () => new PowderScene()
   },
   {
     id: 'jellyfish',
     name: 'Méduse lumineuse',
-    tagline: 'Une créature de filaments vivants.',
-    gradient: 'linear-gradient(135deg,#1a2a6c,#b21f1f,#fdbb2d)',
-    available: false
+    tagline: 'Une créature de filaments qui pulse et te suit.',
+    gradient: 'linear-gradient(135deg,#1a2a6c,#3a0ca3,#4cc9f0)',
+    available: true,
+    create: () => new JellyfishScene()
   },
   {
     id: 'bubbles',
     name: 'Bulles',
-    tagline: 'Bulles qui se poussent, fusionnent et éclatent.',
+    tagline: 'Des bulles irisées montent, fusionnent et éclatent.',
     gradient: 'linear-gradient(135deg,#36d1dc,#5b86e5,#c1f0ff)',
-    available: false
+    available: true,
+    create: () => new BubbleScene()
   },
   {
     id: 'paper-cut',
