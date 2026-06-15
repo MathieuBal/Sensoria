@@ -71,6 +71,10 @@ export interface Scene {
   readonly knobLabel: string;
   /** Ordered option labels for that control; index maps to setSymmetry(). */
   readonly knobOptions: readonly string[];
+  /** Whether the "Mode automatique" toggle applies (Mosaïque only). */
+  readonly supportsAuto: boolean;
+  /** Scene-specific onboarding copy shown on entry. */
+  readonly hint: { title: string; sub: string };
 
   mount(context: SceneContext): void;
   resize(width: number, height: number, dpr: number): void;

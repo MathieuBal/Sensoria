@@ -3,20 +3,24 @@
 > Galerie d'expériences interactives sensorielles — prototype.
 
 Sensoria est une galerie de tableaux interactifs où chaque geste produit une
-réponse visuelle immédiate, fluide et satisfaisante. Le site s'ouvre sur une
-**galerie d'accueil** ; chaque carte ouvre un tableau en plein écran, branché
-sur un **socle réutilisable** (entrées, rendu, réglages).
+réponse visuelle immédiate, fluide et satisfaisante. Le site s'ouvre sur un
+**hub d'accueil** (design *Constella* : deep space / glassmorphism / indigo) ;
+chaque carte ouvre un tableau en plein écran, branché sur un **socle
+réutilisable** (entrées, rendu, réglages). Tout est **éphémère** : rien n'est
+enregistré ni partagé, la composition s'efface en quittant le tableau.
 
-**Tableaux jouables**
+**Tableaux jouables (5 / 16)**
 
-| Tableau            | Sensation                                                    |
-| ------------------ | ----------------------------------------------------------- |
-| Mosaïque infinie   | Kaléidoscope génératif, courbes soyeuses, étincelles.       |
-| Verre liquide      | Buée que l'on essuie, gouttes qui glissent et s'évaporent.  |
-| Champ magnétique   | Milliers de grains qui dessinent les lignes de champ.       |
+| Tableau            | Sensation                                                    | Réglage  |
+| ------------------ | ----------------------------------------------------------- | -------- |
+| Mosaïque infinie   | Kaléidoscope génératif, courbes soyeuses, étincelles.       | Symétrie |
+| Verre liquide      | Buée que l'on essuie, gouttes qui glissent et s'évaporent.  | Buée     |
+| Champ magnétique   | Milliers de grains qui dessinent les lignes de champ.       | Densité  |
+| Jardin de lumière  | Le geste fait croître des branches lumineuses qui éclosent. | Croissance |
+| Lac nocturne       | Eau sombre : effleure-la, les ondes se propagent et se calment. | Onde  |
 
-Les autres tableaux du catalogue (§4) apparaissent en « Bientôt » dans la
-galerie ; les ajouter = écrire une classe `Scene` et basculer `available` dans
+Les autres tableaux du catalogue (§4) apparaissent en « Bientôt » dans le hub ;
+les ajouter = écrire une classe `Scene` et basculer `available` dans
 `src/scenes/registry.ts`.
 
 ## Démarrer
@@ -39,20 +43,27 @@ Choisissez un tableau dans la galerie. En plein écran, le bouton **← Galerie*
 (haut gauche) y revient, le bouton **⋮** (haut droite, ou `Échap`) ouvre les
 réglages. `Échap` ferme d'abord le panneau, puis revient à la galerie.
 
-## Comment jouer (Mosaïque infinie)
+## Gestes par tableau
 
-- **Souris / doigt** : maintenez et déplacez pour dessiner des courbes soyeuses,
-  reproduites en miroir et en rotation (kaléidoscope), avec une gerbe
-  d'étincelles qui scintillent et dérivent.
-- **Vitesse** : un geste lent pose des rubans épais et doux ; un geste rapide
-  laisse des traînées fines, lumineuses et plus d'étincelles.
-- **Double-clic / double-tap** : explosion + changement de palette (avec un
-  léger retour haptique sur mobile).
-- **Relâchement** : la matière continue de vivre quelques instants (inertie).
-- **Réglages** (bouton ⋮ en haut à droite, ou `Échap`) : palette (×3),
-  symétrie (×3), mode automatique, effets réduits, reset animé, capture PNG,
-  plein écran.
-- Les préférences sont **mémorisées localement** et restaurées au rechargement.
+Communs : **double-tap** (< 300 ms) = action forte ; premier contact masque
+l'onboarding ; léger retour **haptique** sur mobile (coupé si « Effets réduits »).
+
+- **Mosaïque infinie** : trait → rubans en miroir, largeur/clarté pilotées par
+  la vitesse, étincelles ; au relâché, comètes à inertie. Double-tap = palette +
+  burst. *Mode automatique* trace une figure seul au repos.
+- **Verre liquide** : glisser **essuie la buée**, gouttes qui glissent et
+  s'évaporent ; la buée revient lentement. Double-tap = pluie locale.
+- **Champ magnétique** : maintenir **attire les grains** (lignes de champ) ;
+  double-tap = pose/retire un **pôle** (max 6).
+- **Jardin de lumière** : glisser fait **croître des branches** qui bifurquent
+  et **éclosent** ; double-tap = éclosion radiale.
+- **Lac nocturne** : effleurer **ride la surface** ; les ondes se propagent,
+  interfèrent puis se dissipent.
+
+Réglages (bouton ⋮ / `Échap`) : palette (×3), réglage propre au tableau (×3),
+mode automatique (Mosaïque), effets réduits, réinitialiser, plein écran. Le
+réglage propre revient au niveau médian à chaque entrée ; palette et effets
+réduits sont conservés.
 
 ## Architecture — le socle (`src/core`)
 
@@ -64,14 +75,14 @@ conformément au §6.1 du cadrage. L'entrée et le rendu sont **isolés**.
 | `InputManager`         | Pointer Events unifiés (souris/pen/multi-touch), vitesse lissée.    |
 | `RenderLoop`           | Boucle rAF, delta time borné, pause quand l'onglet est masqué.      |
 | `SceneManager`         | Cycle de vie, resize, routage des frames et entrées vers la scène.  |
-| `SettingsStore`        | Palettes, intensité, accessibilité, persistance locale, observable. |
-| `CaptureManager`       | Export PNG de la composition.                                       |
+| `SettingsStore`        | Palettes, réglage, accessibilité, persistance locale, observable.   |
 | `PerformanceMonitor`   | FPS lissé + facteur `quality` pour dégrader proprement.             |
 | `types.ts`             | Contrat `Scene` / `PointerSample` partagé.                          |
 
-Le tableau lui-même vit dans `src/scenes/MosaicScene.ts` (Canvas 2D).
-**Ajouter un tableau** = écrire une nouvelle classe `Scene` et la monter ; la
-navigation, les entrées et les réglages sont déjà fournis par le socle.
+Les tableaux vivent dans `src/scenes/*Scene.ts` (Canvas 2D) et exposent un
+calque FX transient via `SceneContext.fx`. **Ajouter un tableau** = écrire une
+classe `Scene`, l'enregistrer dans `registry.ts` ; la navigation, les entrées et
+les réglages sont déjà fournis par le socle.
 
 ## Définition de « fini » du prototype (§10.1)
 

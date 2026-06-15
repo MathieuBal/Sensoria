@@ -14,8 +14,8 @@ export default defineConfig({
         short_name: 'Sensoria',
         description: "Galerie d'expériences interactives sensorielles.",
         lang: 'fr',
-        theme_color: '#0b0d14',
-        background_color: '#0b0d14',
+        theme_color: '#02020c',
+        background_color: '#02020c',
         display: 'fullscreen',
         orientation: 'any',
         start_url: './',
@@ -26,7 +26,23 @@ export default defineConfig({
         ]
       },
       workbox: {
-        globPatterns: ['**/*.{js,css,html,svg,png,ico,woff2}']
+        globPatterns: ['**/*.{js,css,html,svg,png,ico,woff2}'],
+        // Cache Google Fonts at runtime so typography survives offline.
+        runtimeCaching: [
+          {
+            urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
+            handler: 'StaleWhileRevalidate',
+            options: { cacheName: 'google-fonts-stylesheets' }
+          },
+          {
+            urlPattern: /^https:\/\/fonts\.gstatic\.com\/.*/i,
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'google-fonts-webfonts',
+              expiration: { maxEntries: 20, maxAgeSeconds: 60 * 60 * 24 * 365 }
+            }
+          }
+        ]
       }
     })
   ]
