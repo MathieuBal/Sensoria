@@ -16,6 +16,11 @@
   </head>
   <body>
     <canvas id="stage" aria-label="Tableau interactif Mosaïque infinie"></canvas>
+    <!-- Transient FX layer (particles, reset bloom) drawn above the composition. -->
+    <canvas id="fx" aria-hidden="true"></canvas>
+    <!-- Depth vignette + soft cursor halo, both purely decorative. -->
+    <div id="vignette" aria-hidden="true"></div>
+    <div id="cursor" aria-hidden="true"></div>
 
     <!-- First-run hint, fades away on first interaction (§2 Immédiate). -->
     <div id="hint" class="hint">

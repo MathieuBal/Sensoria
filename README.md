@@ -24,10 +24,13 @@ ligne après la première visite).
 
 ## Comment jouer
 
-- **Souris / doigt** : maintenez et déplacez pour dessiner. Le tracé est
-  reproduit en miroir et en rotation (kaléidoscope).
+- **Souris / doigt** : maintenez et déplacez pour dessiner des courbes soyeuses,
+  reproduites en miroir et en rotation (kaléidoscope), avec une gerbe
+  d'étincelles qui scintillent et dérivent.
 - **Vitesse** : un geste lent pose des rubans épais et doux ; un geste rapide
-  laisse des traînées fines et lumineuses.
+  laisse des traînées fines, lumineuses et plus d'étincelles.
+- **Double-clic / double-tap** : explosion + changement de palette (avec un
+  léger retour haptique sur mobile).
 - **Relâchement** : la matière continue de vivre quelques instants (inertie).
 - **Réglages** (bouton ⋮ en haut à droite, ou `Échap`) : palette (×3),
   symétrie (×3), mode automatique, effets réduits, reset animé, capture PNG,
