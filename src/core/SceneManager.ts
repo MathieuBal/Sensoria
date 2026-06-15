@@ -71,6 +71,18 @@ export class SceneManager {
     this.current?.onInput(sample);
   }
 
+  /** Unmount the active scene and wipe both layers (back to the gallery). */
+  unmountCurrent(): void {
+    if (this.current) {
+      this.current.unmount();
+      this.current = null;
+    }
+    this.ctx.globalCompositeOperation = 'source-over';
+    this.ctx.fillStyle = '#0b0d14';
+    this.ctx.fillRect(0, 0, this.width, this.height);
+    this.fx.clearRect(0, 0, this.width, this.height);
+  }
+
   get scene(): Scene | null {
     return this.current;
   }

@@ -69,7 +69,8 @@ export class MosaicScene implements Scene {
   readonly id = 'mosaic';
   readonly name = 'Mosaïque infinie';
   readonly paletteCount = PALETTES.length;
-  readonly symmetryLevels = SECTORS.length;
+  readonly knobLabel = 'Symétrie';
+  readonly knobOptions = ['Doux', 'Riche', 'Dense'] as const;
 
   onPaletteChange?: (index: number) => void;
 
