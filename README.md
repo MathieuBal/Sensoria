@@ -9,19 +9,27 @@ chaque carte ouvre un tableau en plein écran, branché sur un **socle
 réutilisable** (entrées, rendu, réglages). Tout est **éphémère** : rien n'est
 enregistré ni partagé, la composition s'efface en quittant le tableau.
 
-**Tableaux jouables (5 / 16)**
+**Tableaux jouables (13 / 16)**
 
-| Tableau            | Sensation                                                    | Réglage  |
-| ------------------ | ----------------------------------------------------------- | -------- |
-| Mosaïque infinie   | Kaléidoscope génératif, courbes soyeuses, étincelles.       | Symétrie |
-| Verre liquide      | Buée que l'on essuie, gouttes qui glissent et s'évaporent.  | Buée     |
-| Champ magnétique   | Milliers de grains qui dessinent les lignes de champ.       | Densité  |
-| Jardin de lumière  | Le geste fait croître des branches lumineuses qui éclosent. | Croissance |
-| Lac nocturne       | Eau sombre : effleure-la, les ondes se propagent et se calment. | Onde  |
+| Tableau            | Sensation                                                      | Réglage     |
+| ------------------ | ------------------------------------------------------------- | ----------- |
+| Mosaïque infinie   | Kaléidoscope génératif, courbes soyeuses, étincelles.         | Symétrie    |
+| Verre liquide      | Buée que l'on essuie, gouttes qui glissent et s'évaporent.    | Buée        |
+| Champ magnétique   | Milliers de grains qui dessinent les lignes de champ.         | Densité     |
+| Chromaflow         | Rubans de couleur advectés par un champ de flux vivant.       | Flux        |
+| Toile de tissu     | Étoffe Verlet suspendue, satin balayant et brise.            | Étoffe      |
+| Jardin de lumière  | Le geste fait croître des branches lumineuses qui éclosent.   | Croissance  |
+| Lac nocturne       | Eau sombre : effleure-la, les ondes se propagent et se calment. | Onde      |
+| Rubans sonores     | Le mouvement devient une onde qui vibre comme un son.         | Registre    |
+| Cristaux           | Chaque touche fait givrer un cristal à facettes.              | Réseau      |
+| Portail cosmique   | Étoiles en orbite ; le doigt courbe la gravité, supernova.    | Régime      |
+| Poudre réactive    | Remue la poudre ; une étincelle se propage en chaîne.         | Volatilité  |
+| Méduse lumineuse   | Créature de filaments qui pulse et suit le doigt.            | Humeur      |
+| Bulles             | Bulles irisées qui montent, fusionnent et éclatent.          | Densité     |
 
-Les autres tableaux du catalogue (§4) apparaissent en « Bientôt » dans le hub ;
-les ajouter = écrire une classe `Scene` et basculer `available` dans
-`src/scenes/registry.ts`.
+Restent « Bientôt » : Peinture vivante, Papier découpé, Monde miniature.
+Les ajouter = écrire une classe `Scene` et lui donner une fabrique `create`
+dans `src/scenes/registry.ts`.
 
 ## Démarrer
 
