@@ -3,25 +3,33 @@ import type { Scene } from '../core/types';
 import type { CaptureManager } from '../core/CaptureManager';
 import { PALETTES } from '../palettes';
 
-const SYMMETRY_LABELS = ['Doux', 'Riche', 'Dense'];
-
 /**
- * Binds the floating glass panel to the socle. Keeps DOM concerns out of the
- * scene/engine so the rendering pipeline stays UI-agnostic.
+ * Binds the floating glass panel to whichever tableau is active. The palette
+ * set is shared across scenes; the secondary "knob" (symmetry / density / fog…)
+ * is rebuilt from each scene's own labels on {@link bind}.
  */
 export class Controls {
+  private scene: Scene | null = null;
   private hintDismissed = false;
 
   constructor(
     private readonly settings: SettingsStore,
-    private readonly scene: Scene,
     private readonly capture: CaptureManager
   ) {
-    this.buildSegments();
+    this.buildPalettes();
     this.wirePanelToggle();
     this.wireSwitches();
     this.wireActions();
+  }
+
+  /** Attach the panel to a freshly mounted scene. */
+  bind(scene: Scene): void {
+    this.scene = scene;
+    scene.onPaletteChange = (i) => this.reflectPalette(i);
+    this.$('scene-title').textContent = scene.name;
+    this.buildKnob(scene);
     this.syncFromSettings();
+    this.hintDismissed = false;
   }
 
   /** Reflect a palette change initiated by the scene (e.g. double-tap). */
@@ -37,15 +45,20 @@ export class Controls {
     document.getElementById('hint')?.classList.add('is-hidden');
   }
 
+  showHint(): void {
+    this.hintDismissed = false;
+    document.getElementById('hint')?.classList.remove('is-hidden');
+  }
+
   private $(id: string): HTMLElement {
     const el = document.getElementById(id);
     if (!el) throw new Error(`Missing element #${id}`);
     return el;
   }
 
-  private buildSegments(): void {
-    // Palettes — each button previews its colour stops.
+  private buildPalettes(): void {
     const palettes = this.$('palettes');
+    palettes.innerHTML = '';
     PALETTES.forEach((p, i) => {
       const btn = document.createElement('button');
       btn.type = 'button';
@@ -61,32 +74,30 @@ export class Controls {
       btn.addEventListener('click', () => this.selectPalette(i));
       palettes.appendChild(btn);
     });
+  }
 
-    // Symmetry levels.
-    const symmetry = this.$('symmetry');
-    SYMMETRY_LABELS.slice(0, this.scene.symmetryLevels).forEach((label, i) => {
+  private buildKnob(scene: Scene): void {
+    this.$('knob-label').textContent = scene.knobLabel;
+    const knob = this.$('symmetry');
+    knob.innerHTML = '';
+    scene.knobOptions.forEach((label, i) => {
       const btn = document.createElement('button');
       btn.type = 'button';
       btn.textContent = label;
-      btn.addEventListener('click', () => this.selectSymmetry(i));
-      symmetry.appendChild(btn);
+      btn.addEventListener('click', () => this.selectKnob(i));
+      knob.appendChild(btn);
     });
   }
 
   private wirePanelToggle(): void {
     const panel = this.$('panel');
-    const open = () => {
-      panel.hidden = false;
+    const toggle = () => {
+      panel.hidden = !panel.hidden;
     };
-    const close = () => {
-      panel.hidden = true;
-    };
-    this.$('menu-toggle').addEventListener('click', () => {
-      panel.hidden ? open() : close();
-    });
-    this.$('panel-close').addEventListener('click', close);
+    this.$('menu-toggle').addEventListener('click', toggle);
+    this.$('panel-close').addEventListener('click', () => (panel.hidden = true));
     window.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape') panel.hidden ? open() : close();
+      if (e.key === 'Escape' && this.scene) toggle();
     });
   }
 
@@ -94,9 +105,8 @@ export class Controls {
     const auto = this.$('auto') as HTMLInputElement;
     auto.addEventListener('change', () => {
       this.settings.set('auto', auto.checked);
-      this.scene.setAuto(auto.checked);
+      this.scene?.setAuto(auto.checked);
     });
-
     const reduced = this.$('reduced') as HTMLInputElement;
     reduced.addEventListener('change', () => {
       this.settings.set('reducedEffects', reduced.checked);
@@ -104,20 +114,22 @@ export class Controls {
   }
 
   private wireActions(): void {
-    this.$('reset').addEventListener('click', () => this.scene.reset());
-    this.$('capture').addEventListener('click', () => this.capture.savePng('mosaique'));
+    this.$('reset').addEventListener('click', () => this.scene?.reset());
+    this.$('capture').addEventListener('click', () =>
+      this.capture.savePng(this.scene?.id ?? 'sensoria')
+    );
     this.$('fullscreen').addEventListener('click', () => this.toggleFullscreen());
   }
 
   private selectPalette(i: number): void {
     this.settings.set('palette', i);
-    this.scene.setPalette(i);
+    this.scene?.setPalette(i);
     this.markPressed('palettes', i);
   }
 
-  private selectSymmetry(i: number): void {
+  private selectKnob(i: number): void {
     this.settings.set('symmetry', i);
-    this.scene.setSymmetry(i);
+    this.scene?.setSymmetry(i);
     this.markPressed('symmetry', i);
   }
 
@@ -130,8 +142,9 @@ export class Controls {
 
   private syncFromSettings(): void {
     const s = this.settings.get();
+    const knobMax = this.$('symmetry').children.length;
     this.markPressed('palettes', s.palette);
-    this.markPressed('symmetry', s.symmetry);
+    this.markPressed('symmetry', Math.min(s.symmetry, knobMax - 1));
     (this.$('auto') as HTMLInputElement).checked = s.auto;
     (this.$('reduced') as HTMLInputElement).checked = s.reducedEffects;
   }

@@ -27,6 +27,20 @@
       <span>Touchez et déplacez</span>
     </div>
 
+    <!-- Home gallery (§2.1). Cards are injected from the scene registry. -->
+    <section id="gallery" class="gallery">
+      <header class="gallery__head">
+        <h1 class="gallery__title">Sensoria</h1>
+        <p class="gallery__sub">Galerie d'expériences interactives sensorielles</p>
+      </header>
+      <div id="gallery-grid" class="gallery__grid"></div>
+    </section>
+
+    <!-- Discreet return to the gallery (§2.1). -->
+    <button id="back" class="back-btn" aria-label="Retour à la galerie">
+      <span aria-hidden="true">←</span> Galerie
+    </button>
+
     <!-- Discreet control to reveal settings (§2 Discret). -->
     <button id="menu-toggle" class="menu-toggle" aria-label="Réglages" title="Réglages (Échap)">
       <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true">
@@ -39,7 +53,7 @@
     <!-- Floating frosted-glass panel (§7 Direction artistique). -->
     <aside id="panel" class="panel" hidden>
       <header class="panel__head">
-        <h1>Mosaïque infinie</h1>
+        <h1 id="scene-title">Tableau</h1>
         <button id="panel-close" class="icon-btn" aria-label="Fermer">✕</button>
       </header>
 
@@ -49,8 +63,8 @@
       </section>
 
       <section class="control">
-        <span class="control__label">Symétrie</span>
-        <div id="symmetry" class="seg" role="group" aria-label="Symétrie"></div>
+        <span class="control__label" id="knob-label">Intensité</span>
+        <div id="symmetry" class="seg" role="group" aria-label="Réglage"></div>
       </section>
 
       <section class="control control--row">

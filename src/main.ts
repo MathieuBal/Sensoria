@@ -5,15 +5,16 @@ import { SettingsStore } from './core/SettingsStore';
 import { SceneManager } from './core/SceneManager';
 import { CaptureManager } from './core/CaptureManager';
 import { PerformanceMonitor } from './core/PerformanceMonitor';
-import { MosaicScene } from './scenes/MosaicScene';
 import { Controls } from './ui/Controls';
+import { Gallery } from './ui/Gallery';
+import { SCENES } from './scenes/registry';
 
 /**
- * Sensoria — wiring of the reusable socle for the first tableau.
+ * Sensoria — application shell.
  *
- * Phase 0 (prototype "sensation") + Phase 1 (socle) from the roadmap:
- * a single full-screen scene plugged onto a shared input / render / settings
- * foundation. Adding a new tableau later means only writing a new Scene.
+ * A home gallery (Phase 1 navigation) opens any tableau full-screen on the
+ * shared socle (input / render / settings). Each tableau is an interchangeable
+ * Scene; switching is just mount/unmount on the SceneManager.
  */
 
 const canvas = document.getElementById('stage') as HTMLCanvasElement;
@@ -22,22 +23,20 @@ const cursorEl = document.getElementById('cursor') as HTMLElement;
 
 const settings = new SettingsStore();
 const perf = new PerformanceMonitor();
-// `perf` exposes a live `quality` value to scenes via a thin view object.
 const perfView = {
   get quality(): number {
     return perf.value;
   }
 };
 
-const sceneManager = new SceneManager(canvas, fxCanvas, createLiveSettingsView(), perfView);
+// A mutable settings view kept in sync with the store for the scenes.
+const settingsView = { ...settings.get() };
+settings.subscribe((s) => Object.assign(settingsView, s));
 
-function createLiveSettingsView() {
-  // SceneManager needs a mutable settings object kept in sync with the store,
-  // so scenes always read the latest palette / reducedEffects values.
-  const view = { ...settings.get() };
-  settings.subscribe((s) => Object.assign(view, s));
-  return view;
-}
+const sceneManager = new SceneManager(canvas, fxCanvas, settingsView, perfView);
+const input = new InputManager(canvas, () => dpr);
+const capture = new CaptureManager(canvas);
+const controls = new Controls(settings, capture);
 
 // --- Responsive backing store (device pixels, capped DPR for perf) ----------
 let dpr = 1;
@@ -55,27 +54,51 @@ function resize(): void {
   }
   sceneManager.resize(w, h, dpr);
 }
-
-// --- Input ------------------------------------------------------------------
-const input = new InputManager(canvas, () => dpr);
-const capture = new CaptureManager(canvas);
-
-// --- Scene ------------------------------------------------------------------
-const scene = new MosaicScene();
-sceneManager.mount(scene);
 resize();
 
-const controls = new Controls(settings, scene, capture);
+// --- Navigation -------------------------------------------------------------
+const gallery = new Gallery(
+  document.getElementById('gallery') as HTMLElement,
+  SCENES,
+  enterScene
+);
 
-// Keep the palette UI in sync when the scene cycles palette itself (double-tap).
-scene.onPaletteChange = (i) => controls.reflectPalette(i);
+function enterScene(id: string): void {
+  const meta = SCENES.find((m) => m.id === id);
+  if (!meta?.available || !meta.create) return;
+  const scene = meta.create();
+  sceneManager.mount(scene);
+  controls.bind(scene);
+  controls.showHint();
+  document.body.classList.add('in-scene');
+  gallery.hide();
+}
 
+function exitScene(): void {
+  sceneManager.unmountCurrent();
+  (document.getElementById('panel') as HTMLElement).hidden = true;
+  document.body.classList.remove('in-scene');
+  gallery.show();
+}
+
+document.getElementById('back')?.addEventListener('click', exitScene);
+window.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape' && document.body.classList.contains('in-scene')) {
+    // Escape closes an open panel first, otherwise returns to the gallery.
+    const panel = document.getElementById('panel') as HTMLElement;
+    if (!panel.hidden) panel.hidden = true;
+    else exitScene();
+  }
+});
+
+// --- Input ------------------------------------------------------------------
 input.on((sample) => {
+  if (!sceneManager.scene) return;
   controls.dismissHint();
   sceneManager.input(sample);
 });
 
-// --- Soft cursor halo (mouse only) -----------------------------------------
+// Soft cursor halo (mouse only, scene only via CSS).
 window.addEventListener(
   'pointermove',
   (e) => {
@@ -92,7 +115,6 @@ window.addEventListener('pointerdown', (e) => {
   if (e.pointerType === 'mouse') cursorEl.classList.add('is-down');
 });
 window.addEventListener('pointerup', () => cursorEl.classList.remove('is-down'));
-window.addEventListener('pointerleave', () => (cursorEl.style.opacity = '0'));
 
 // --- Frame loop -------------------------------------------------------------
 const loop = new RenderLoop((dt, time) => {

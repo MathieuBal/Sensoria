@@ -67,8 +67,10 @@ export interface Scene {
   readonly name: string;
   /** Number of selectable palettes this scene exposes. */
   readonly paletteCount: number;
-  /** Ordered symmetry / intensity levels this scene exposes. */
-  readonly symmetryLevels: number;
+  /** Label for the scene's secondary control (e.g. "Symétrie", "Densité"). */
+  readonly knobLabel: string;
+  /** Ordered option labels for that control; index maps to setSymmetry(). */
+  readonly knobOptions: readonly string[];
 
   mount(context: SceneContext): void;
   resize(width: number, height: number, dpr: number): void;

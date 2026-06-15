@@ -3,10 +3,21 @@
 > Galerie d'expériences interactives sensorielles — prototype.
 
 Sensoria est une galerie de tableaux interactifs où chaque geste produit une
-réponse visuelle immédiate, fluide et satisfaisante. Ce dépôt contient le
-**premier chantier** défini dans le document de cadrage (§10) : un prototype
-plein écran du tableau **« Mosaïque infinie »**, construit sur un **socle
-réutilisable** afin que de nouveaux tableaux puissent s'y brancher.
+réponse visuelle immédiate, fluide et satisfaisante. Le site s'ouvre sur une
+**galerie d'accueil** ; chaque carte ouvre un tableau en plein écran, branché
+sur un **socle réutilisable** (entrées, rendu, réglages).
+
+**Tableaux jouables**
+
+| Tableau            | Sensation                                                    |
+| ------------------ | ----------------------------------------------------------- |
+| Mosaïque infinie   | Kaléidoscope génératif, courbes soyeuses, étincelles.       |
+| Verre liquide      | Buée que l'on essuie, gouttes qui glissent et s'évaporent.  |
+| Champ magnétique   | Milliers de grains qui dessinent les lignes de champ.       |
+
+Les autres tableaux du catalogue (§4) apparaissent en « Bientôt » dans la
+galerie ; les ajouter = écrire une classe `Scene` et basculer `available` dans
+`src/scenes/registry.ts`.
 
 ## Démarrer
 
@@ -22,7 +33,13 @@ Ouvrez l'URL affichée. Sur mobile, utilisez `npm run preview` (ou `dev --host`)
 puis l'adresse réseau ; l'application est installable (PWA, plein écran, hors
 ligne après la première visite).
 
-## Comment jouer
+## Navigation
+
+Choisissez un tableau dans la galerie. En plein écran, le bouton **← Galerie**
+(haut gauche) y revient, le bouton **⋮** (haut droite, ou `Échap`) ouvre les
+réglages. `Échap` ferme d'abord le panneau, puis revient à la galerie.
+
+## Comment jouer (Mosaïque infinie)
 
 - **Souris / doigt** : maintenez et déplacez pour dessiner des courbes soyeuses,
   reproduites en miroir et en rotation (kaléidoscope), avec une gerbe
