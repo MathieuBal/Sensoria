@@ -7,11 +7,14 @@ import { LightGardenScene } from './LightGardenScene';
 import { BubbleScene } from './BubbleScene';
 import { CrystalScene } from './CrystalScene';
 import { CosmosScene } from './CosmosScene';
-import { ChromaScene } from './ChromaScene';
+import { MurmurationScene } from './MurmurationScene';
 import { JellyfishScene } from './JellyfishScene';
 import { ClothScene } from './ClothScene';
 import { PowderScene } from './PowderScene';
-import { SoundScene } from './SoundScene';
+import { StringsScene } from './StringsScene';
+import { FerroScene } from './FerroScene';
+import { GrassScene } from './GrassScene';
+import { TerrariumScene } from './TerrariumScene';
 
 /** Gallery card metadata for a tableau (§4 catalogue). */
 export interface SceneMeta {
@@ -26,9 +29,9 @@ export interface SceneMeta {
 }
 
 /**
- * The full catalogue (§4), in registry order. 13 tableaux are playable; the
- * remaining 3 (living-paint, paper-cut, terrarium) are shown as "Bientôt".
- * Adding a tableau = write a Scene + give it a `create` factory here.
+ * The full catalogue (§4), in registry order — all 16 tableaux are playable.
+ * Three `id`s are historical (kept stable): `chromaflow` is now « Nuée »,
+ * `living-paint` is « Ferrofluide », `paper-cut` is « Brise ».
  */
 export const SCENES: SceneMeta[] = [
   {
@@ -57,11 +60,11 @@ export const SCENES: SceneMeta[] = [
   },
   {
     id: 'chromaflow',
-    name: 'Chromaflow',
-    tagline: 'Des rubans de couleur suivent un champ de flux vivant.',
-    gradient: 'linear-gradient(135deg,#ff8a00,#e52e71,#9b5de5,#00bbf9)',
+    name: 'Nuée',
+    tagline: "Une nuée d'oiseaux qui ondule ; ton doigt la fend comme un faucon.",
+    gradient: 'linear-gradient(135deg,#1a1430,#4a3f6b,#c98a6b,#f4c97a)',
     available: true,
-    create: () => new ChromaScene()
+    create: () => new MurmurationScene()
   },
   {
     id: 'cloth',
@@ -89,18 +92,19 @@ export const SCENES: SceneMeta[] = [
   },
   {
     id: 'living-paint',
-    name: 'Peinture vivante',
-    tagline: 'Pigments qui coulent, se mêlent et se figent.',
-    gradient: 'linear-gradient(135deg,#f72585,#7209b7,#3a0ca3,#4cc9f0)',
-    available: false
+    name: 'Ferrofluide',
+    tagline: 'Un métal liquide noir qui se hérisse de pointes vers ton doigt.',
+    gradient: 'linear-gradient(135deg,#05050b,#1a1a2e,#3a3a5c,#8a8ab0)',
+    available: true,
+    create: () => new FerroScene()
   },
   {
     id: 'sound-ribbons',
-    name: 'Rubans sonores',
-    tagline: 'Ton geste devient une onde qui vibre comme un son.',
+    name: 'Cordes',
+    tagline: 'Des cordes de lumière que tu pinces ; elles vibrent et résonnent.',
     gradient: 'linear-gradient(135deg,#ff0080,#ff8c00,#40e0d0)',
     available: true,
-    create: () => new SoundScene()
+    create: () => new StringsScene()
   },
   {
     id: 'crystals',
@@ -144,16 +148,18 @@ export const SCENES: SceneMeta[] = [
   },
   {
     id: 'paper-cut',
-    name: 'Papier découpé',
-    tagline: 'Couches, pliage, découpe et parallaxe.',
-    gradient: 'linear-gradient(135deg,#ee9ca7,#ffdde1,#c9d6ff)',
-    available: false
+    name: 'Brise',
+    tagline: 'Une prairie de lumière ; ton geste couche les herbes en vagues.',
+    gradient: 'linear-gradient(135deg,#bcd4e6,#e8e0d0,#b8d68a,#f6e3a1)',
+    available: true,
+    create: () => new GrassScene()
   },
   {
     id: 'terrarium',
     name: 'Monde miniature',
-    tagline: 'Sable, eau et objets sous verre.',
+    tagline: 'Sable et eau sous verre : creuse, verse, façonne.',
     gradient: 'linear-gradient(135deg,#134e5e,#71b280,#f6d365)',
-    available: false
+    available: true,
+    create: () => new TerrariumScene()
   }
 ];
