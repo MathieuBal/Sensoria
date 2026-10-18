@@ -1,6 +1,7 @@
 import type { SettingsStore } from '../core/SettingsStore';
 import type { Scene } from '../core/types';
 import { PALETTES } from '../palettes';
+import { SCENE_GUIDES } from './sceneGuides';
 
 /**
  * Binds the floating glass panel + onboarding to whichever tableau is active.
@@ -11,25 +12,31 @@ import { PALETTES } from '../palettes';
  */
 export class Controls {
   private scene: Scene | null = null;
-  private hintDismissed = false;
 
   constructor(private readonly settings: SettingsStore) {
     this.buildPalettes();
     this.wirePanelToggle();
     this.wireSwitches();
     this.wireActions();
+    this.$('help-toggle').addEventListener('click', () => this.showHint());
+    this.$('guide-start').addEventListener('click', () => this.dismissHint());
+    this.$('scene-guide').addEventListener('cancel', (event) => {
+      event.preventDefault();
+      this.dismissHint();
+    });
   }
 
   /** Attach the panel to a freshly mounted scene (num = registry position). */
   bind(scene: Scene, num: string): void {
+    if (this.scene) this.scene.onToolChange = undefined;
     this.scene = scene;
+    this.buildTools(scene);
     scene.onPaletteChange = (i) => this.reflectPalette(i);
     this.$('scene-title').textContent = scene.name;
     this.$('scene-num').textContent = `Tableau ${num}`;
     this.buildKnob(scene);
     (this.$('auto-row') as HTMLElement).style.display = scene.supportsAuto ? 'flex' : 'none';
-    this.$('hint-title').textContent = scene.hint.title;
-    this.$('hint-sub').textContent = scene.hint.sub;
+    this.buildGuide(scene);
     this.showHint();
     this.syncFromSettings();
   }
@@ -39,15 +46,39 @@ export class Controls {
     this.markPressed('palettes', index);
   }
 
+  get helpOpen(): boolean {
+    return (this.$('scene-guide') as HTMLDialogElement).open;
+  }
+
   showHint(): void {
-    this.hintDismissed = false;
-    document.getElementById('hint')?.classList.remove('is-hidden');
+    const dialog = this.$('scene-guide') as HTMLDialogElement;
+    if (!dialog.open) {
+      dialog.showModal();
+      dialog.scrollTop = 0;
+    }
   }
 
   dismissHint(): void {
-    if (this.hintDismissed) return;
-    this.hintDismissed = true;
-    document.getElementById('hint')?.classList.add('is-hidden');
+    const dialog = this.$('scene-guide') as HTMLDialogElement;
+    if (!dialog.open) return;
+    dialog.close();
+    this.$('help-toggle').focus();
+  }
+
+  private buildGuide(scene: Scene): void {
+    const guide = SCENE_GUIDES[scene.id];
+    this.$('guide-title').textContent = scene.name;
+    this.$('guide-concept').textContent = guide?.concept ?? scene.hint.title;
+    const list = this.$('guide-gestures');
+    list.replaceChildren();
+    for (const gesture of guide?.gestures ?? [scene.hint.sub]) {
+      const item = document.createElement('li');
+      item.textContent = gesture;
+      list.appendChild(item);
+    }
+    this.$('guide-settings').textContent =
+      `Dans les réglages : couleurs et ${scene.knobLabel.toLocaleLowerCase('fr')} (${scene.knobOptions.join(' / ')}).` +
+      (scene.supportsAuto ? ' Le mode automatique dessine pour toi.' : '');
   }
 
   private $(id: string): HTMLElement {
@@ -74,6 +105,24 @@ export class Controls {
       btn.addEventListener('click', () => this.selectPalette(i));
       palettes.appendChild(btn);
     });
+  }
+
+  private buildTools(scene: Scene): void {
+    const group = this.$('scene-tools');
+    group.replaceChildren();
+    group.hidden = !scene.toolOptions?.length;
+    scene.toolOptions?.forEach((label, i) => {
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.textContent = label;
+      button.addEventListener('click', () => {
+        scene.setTool?.(i);
+        this.dismissHint();
+      });
+      group.appendChild(button);
+    });
+    scene.onToolChange = (i) => this.markPressed('scene-tools', i);
+    this.markPressed('scene-tools', scene.selectedTool ?? 0);
   }
 
   private buildKnob(scene: Scene): void {
@@ -152,3 +201,4 @@ export class Controls {
     }
   }
 }
+

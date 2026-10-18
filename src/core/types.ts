@@ -73,6 +73,11 @@ export interface Scene {
   readonly knobOptions: readonly string[];
   /** Whether the "Mode automatique" toggle applies (Mosaïque only). */
   readonly supportsAuto: boolean;
+  /** Optional always-visible scene tools, independent of shared settings. */
+  readonly toolOptions?: readonly string[];
+  readonly selectedTool?: number;
+  setTool?(index: number): void;
+  onToolChange?: (index: number) => void;
   /** Scene-specific onboarding copy shown on entry. */
   readonly hint: { title: string; sub: string };
 
@@ -94,3 +99,4 @@ export interface Scene {
   reset(): void;
   unmount(): void;
 }
+

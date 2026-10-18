@@ -73,12 +73,13 @@ function enterScene(id: string): void {
   settings.set('symmetry', 1);
   const scene = meta.create();
   sceneManager.mount(scene);
-  controls.bind(scene, pad2(index + 1));
   panelEl.hidden = true;
   gallery.hide();
+  controls.bind(scene, pad2(index + 1));
 }
 
 function exitScene(): void {
+  controls.dismissHint();
   sceneManager.unmountCurrent();
   panelEl.hidden = true;
   gallery.show();
@@ -86,6 +87,7 @@ function exitScene(): void {
 
 document.getElementById('back')?.addEventListener('click', exitScene);
 window.addEventListener('keydown', (e) => {
+  if (controls.helpOpen) return; // native dialog cancellation closes help only
   if (e.key !== 'Escape' || !document.body.classList.contains('in-scene')) return;
   // Escape closes an open panel first, otherwise returns to the gallery.
   if (!panelEl.hidden) panelEl.hidden = true;
@@ -94,7 +96,7 @@ window.addEventListener('keydown', (e) => {
 
 // --- Input ------------------------------------------------------------------
 input.on((sample) => {
-  if (!sceneManager.scene) return;
+  if (!sceneManager.scene || controls.helpOpen) return;
   controls.dismissHint();
   sceneManager.input(sample);
 });
@@ -126,3 +128,4 @@ loop.start();
 
 window.addEventListener('resize', resize);
 window.addEventListener('orientationchange', resize);
+

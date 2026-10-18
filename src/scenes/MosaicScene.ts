@@ -15,7 +15,8 @@ const SPEED_REF = 2.2; // reference gesture speed (CSS px/ms)
 const COMET_MS = 950; // inertia lifetime after release
 const COMET_TAU = 240; // velocity decay time-constant (ms)
 const RESET_MS = 800;
-const FADE_TAU = 8000; // gentle longevity fade keeps the canvas fresh for minutes
+const FADE_TAU = 5500; // keep several seconds of composition before it recedes
+const FADE_STEP_MS = 100; // batch tiny alpha values to avoid 8-bit rounding stalls
 const PARTICLE_TAU = 520; // particle velocity damping
 const SPRITE_N = 12; // pre-rendered glow sprites sampled across the palette
 const SPRITE_SIZE = 64;
@@ -103,6 +104,7 @@ export class MosaicScene implements Scene {
   private particleSprites: HTMLCanvasElement[] = [];
 
   private colorBase = 0;
+  private fadeElapsed = 0;
 
   private autoBrush: Brush | null = null;
   private autoT = 0;
@@ -255,6 +257,7 @@ export class MosaicScene implements Scene {
   }
 
   private clearToBackground(): void {
+    this.fadeElapsed = 0;
     if (!this.ctx) return;
     this.ctx.globalCompositeOperation = 'source-over';
     this.ctx.fillStyle = `rgb(${BG.r},${BG.g},${BG.b})`;
@@ -262,13 +265,24 @@ export class MosaicScene implements Scene {
   }
 
   private applyFade(dt: number): void {
-    // Gentle exponential fade prevents additive whiteout and keeps the cost of
-    // a frame constant no matter how long the session runs.
-    const k = 1 - Math.exp(-dt / FADE_TAU);
+    this.fadeElapsed += dt;
+    if (this.fadeElapsed < FADE_STEP_MS) return;
+    const k = 1 - Math.exp(-this.fadeElapsed / FADE_TAU);
+    this.fadeElapsed = 0;
     const ctx = this.ctx;
     ctx.globalCompositeOperation = 'source-over';
+    ctx.save();
     ctx.fillStyle = `rgba(${BG.r},${BG.g},${BG.b},${k})`;
     ctx.fillRect(0, 0, this.width, this.height);
+    // Remove one channel level per step: exponential blending alone leaves
+    // permanent faint traces when its delta rounds to zero on an 8-bit canvas.
+    ctx.globalCompositeOperation = 'difference';
+    ctx.fillStyle = 'rgb(1,1,1)';
+    ctx.fillRect(0, 0, this.width, this.height);
+    ctx.globalCompositeOperation = 'lighten';
+    ctx.fillStyle = `rgb(${BG.r},${BG.g},${BG.b})`;
+    ctx.fillRect(0, 0, this.width, this.height);
+    ctx.restore();
   }
 
   private cyclePalette(): void {
@@ -541,3 +555,4 @@ export class MosaicScene implements Scene {
     fx.globalCompositeOperation = 'source-over';
   }
 }
+

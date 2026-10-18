@@ -76,7 +76,7 @@
       <span aria-hidden="true">←</span> Galerie
     </button>
 
-    <button id="menu-toggle" class="menu-toggle" aria-label="Réglages" title="Réglages (Échap)">
+    <button id="menu-toggle" class="menu-toggle" aria-label="Réglages" title="Réglages">
       <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
         <circle cx="12" cy="5" r="1.8" fill="currentColor" />
         <circle cx="12" cy="12" r="1.8" fill="currentColor" />
@@ -84,14 +84,23 @@
       </svg>
     </button>
 
-    <!-- Scene-specific onboarding (§2 Immédiate). -->
-    <div id="hint" class="onboard">
-      <div class="onboard__inner">
-        <div class="onboard__ring" aria-hidden="true"></div>
-        <span id="hint-title" class="onboard__title"></span>
-        <span id="hint-sub" class="onboard__sub"></span>
+    <div id="scene-tools" class="scene-tools" role="group" aria-label="Matériau" hidden></div>
+
+    <button id="help-toggle" class="help-toggle" aria-label="Comprendre cette scène" title="Comprendre cette scène">?</button>
+
+    <dialog id="scene-guide" class="scene-guide" aria-labelledby="guide-title" aria-describedby="guide-concept">
+      <div class="scene-guide__inner">
+        <span class="scene-guide__eyebrow">Un instant pour découvrir</span>
+        <h2 id="guide-title" tabindex="-1" autofocus></h2>
+        <p id="guide-concept"></p>
+        <h3>À toi d’essayer</h3>
+        <p class="scene-guide__input">Glisse avec le doigt ou en maintenant le clic gauche.</p>
+        <ul id="guide-gestures"></ul>
+        <p id="guide-settings" class="scene-guide__settings"></p>
+        <p class="scene-guide__footer">⋮ Réglages · ? Aide · Galerie pour revenir. Échap ferme l’aide ou les réglages ; sinon, revient à la galerie.</p>
+        <button id="guide-start" class="btn">Explorer</button>
       </div>
-    </div>
+    </dialog>
 
     <!-- Scene-aware settings panel. -->
     <aside id="panel" class="panel" hidden>
@@ -137,3 +146,4 @@
     <script type="module" src="/src/main.ts"></script>
   </body>
 </html>
+

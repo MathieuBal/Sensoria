@@ -133,7 +133,7 @@ export const SCENES: SceneMeta[] = [
   {
     id: 'jellyfish',
     name: 'Méduse lumineuse',
-    tagline: 'Une créature de filaments qui pulse et te suit.',
+    tagline: 'Une créature autonome, attirée par ton geste.',
     gradient: 'linear-gradient(135deg,#1a2a6c,#3a0ca3,#4cc9f0)',
     available: true,
     create: () => new JellyfishScene()
@@ -163,3 +163,4 @@ export const SCENES: SceneMeta[] = [
     create: () => new TerrariumScene()
   }
 ];
+
