@@ -9,7 +9,7 @@ chaque carte ouvre un tableau en plein écran, branché sur un **socle
 réutilisable** (entrées, rendu, réglages). Tout est **éphémère** : rien n'est
 enregistré ni partagé, la composition s'efface en quittant le tableau.
 
-**Les 16 tableaux sont jouables.**
+**Les 22 tableaux sont jouables.** Chaque entrée présente le concept et les gestes ; le bouton `?` permet de relire cette aide.
 
 | Tableau            | Sensation                                                      | Réglage     |
 | ------------------ | ------------------------------------------------------------- | ----------- |
@@ -25,10 +25,16 @@ enregistré ni partagé, la composition s'efface en quittant le tableau.
 | Cristaux           | Chaque touche fait givrer un cristal à facettes.              | Réseau      |
 | Portail cosmique   | Étoiles en orbite ; le doigt courbe la gravité, supernova.    | Régime      |
 | Poudre réactive    | Remue la poudre ; une étincelle se propage en chaîne.         | Volatilité  |
-| Méduse lumineuse   | Créature de filaments qui pulse et suit le doigt.            | Humeur      |
+| Méduse lumineuse   | Créature autonome attirée par le doigt, avec son inertie.            | Humeur      |
 | Bulles             | Bulles irisées qui montent, fusionnent et éclatent.          | Densité     |
 | Brise              | Prairie claire au lever du jour ; le geste couche les herbes. | Pousse      |
 | Monde miniature    | Automate sable + eau sous verre (falling-sand).              | Grain       |
+| Argile vivante     | Surface 3D que l’on creuse, élève et lisse.                    | Outil       |
+| Théâtre d’ombres   | Lumière mobile et objets à réorganiser, ombres projetées.     | Lumière     |
+| Équilibre suspendu | Sculpture à poids mobiles, masses et oscillations amorties.  | Mouvement   |
+| Papier plié        | Plis en volume suivant le geste, six étapes réversibles.     | Pli         |
+| Encres flottantes  | Pigments transportés par un fluide calculé sur le GPU.       | Fluidité    |
+| Échos du geste     | Cinq chorégraphies de perles issues des gestes dessinés.      | Tempo       |
 
 > Trois `id` de registry sont historiques (gardés stables) : `chromaflow` =
 > Nuée, `living-paint` = Ferrofluide, `paper-cut` = Brise.
@@ -110,10 +116,28 @@ les réglages sont déjà fournis par le socle.
 
 ## Stack
 
-Vite + TypeScript, rendu Canvas 2D, PWA installable (PC & mobile). Le socle est
-volontairement agnostique du moteur de rendu : les futurs tableaux à particules
-ou shaders (Champ magnétique, etc.) pourront utiliser WebGL/WebGPU sans changer
-l'architecture.
+Vite + TypeScript, Canvas 2D pour les 16 scènes d’origine et Three.js / WebGL2
+pour les six nouveaux tableaux. Le moteur 3D est chargé à l’ouverture d’un nouveau
+tableau et réutilise un seul contexte GPU. La PWA peut ensuite le mettre en cache.
+Résolution plafonnée et adaptée à la qualité mesurée, ressources libérées à la
+sortie, historique des plis et des boucles borné. Les encres utilisent des textures
+alternées pour l’advection et la projection de pression ; leur résolution reste
+indépendante de celle de l’écran. Les effets réduits diminuent les calculs et ombres.
 
-Hors périmètre de ce prototype : galerie multi-tableaux, audio génératif,
-comptes/cloud (voir §9 du cadrage).
+Sans WebGL2, un message ramène à la galerie ; les scènes Canvas 2D restent accessibles.
+Les simulations sont des expériences artistiques, pas des modèles physiques de mesure.
+
+## Vérifier les nouveaux tableaux
+
+```bash
+npx playwright install chromium
+npm run test:studio
+```
+
+Le script démarre son serveur Vite puis vérifie les six scènes en format bureau
+et mobile avec gestes souris/tactiles, les aides et réglages, le retour aux 16
+scènes d’origine, la sculpture, les plis réversibles, la stabilité du mobile,
+les limites des boucles et le repli sans WebGL2. Il produit des captures dans
+`test-results/` (ignoré par Git). `CHROMIUM_EXECUTABLE` permet de choisir un Chromium
+existant. Ces vérifications en navigateur ne remplacent pas un essai sur un vrai
+appareil mobile avant la publication.

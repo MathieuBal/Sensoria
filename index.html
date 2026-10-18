@@ -44,8 +44,8 @@
             rien à partager. Juste l'instant.
           </p>
           <div class="hero__stats">
-            <span>16 tableaux</span><span class="sep">/</span>
-            <span class="hl">16 jouables</span><span class="sep">/</span>
+            <span>22 tableaux</span><span class="sep">/</span>
+            <span class="hl">22 jouables</span><span class="sep">/</span>
             <span>PWA · plein écran · hors ligne</span>
           </div>
         </section>
@@ -53,12 +53,12 @@
         <section>
           <div class="collection__bar">
             <span>La collection</span>
-            <span id="collection-count">05 / 16 jouables</span>
+            <span id="collection-count">05 / 22 jouables</span>
           </div>
           <div id="gallery-grid" class="collection__grid"></div>
 
           <footer class="hub__footer">
-            <span>Sensoria — prototype · Canvas 2D · installable hors ligne</span>
+            <span>Sensoria — prototype · Canvas 2D & 3D · installable hors ligne</span>
             <span class="hub__footer-italic">Conçu pour être ressenti, pas collectionné.</span>
           </footer>
         </section>
@@ -84,7 +84,7 @@
       </svg>
     </button>
 
-    <div id="scene-tools" class="scene-tools" role="group" aria-label="Matériau" hidden></div>
+    <div id="scene-tools" class="scene-tools" role="group" aria-label="Outils du tableau" hidden></div>
 
     <button id="help-toggle" class="help-toggle" aria-label="Comprendre cette scène" title="Comprendre cette scène">?</button>
 
@@ -101,6 +101,8 @@
         <button id="guide-start" class="btn">Explorer</button>
       </div>
     </dialog>
+
+    <p id="scene-status" class="scene-status" role="status" aria-live="polite"></p>
 
     <!-- Scene-aware settings panel. -->
     <aside id="panel" class="panel" hidden>

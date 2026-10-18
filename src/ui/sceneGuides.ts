@@ -64,5 +64,30 @@ export const SCENE_GUIDES: Record<string, SceneGuide> = {
   terrarium: {
     concept: 'Un petit monde soumis à la gravité. Le sable s’empile, l’eau s’écoule et la roche reste fixe : dispose les matières et observe ce qu’elles deviennent.',
     gestures: ['Choisis Sable, Eau, Roche ou Effacer en haut à droite.', 'Glisse pour déposer la matière ou effacer une zone.', 'Double-tape ou double-clique pour passer au matériau suivant.']
+  },
+  clay: {
+    concept: 'Une galette d’argile en relief garde les traces de tes gestes. Creuse une vallée, élève une crête, puis adoucis les raccords. La lumière révèle chaque empreinte.',
+    gestures: ['Choisis Creuser, Élever ou Lisser, puis glisse sur la matière.', 'Maintiens au même endroit pour accentuer l’empreinte.', 'Le réglage Outil change la largeur de ton geste. Réinitialiser retrouve la galette d’origine.']
+  },
+  'shadow-theatre': {
+    concept: 'Les objets restent les mêmes, mais leur ombre transforme l’espace. Déplace la lumière pour allonger ou croiser les silhouettes, puis réorganise les objets.',
+    gestures: ['En mode Lumière, glisse pour déplacer la source.', 'En mode Objets, saisis une forme et déplace-la.', 'Essaie une lumière rasante, douce ou haute dans les réglages.']
+  },
+  balance: {
+    concept: 'Un mobile suspendu cherche son équilibre. La masse des poids et leur distance au pivot influencent toute la sculpture ; après ton geste, les oscillations s’apaisent.',
+    gestures: ['En mode Déplacer, saisis un poids et rapproche-le ou éloigne-le du pivot.', 'Choisis Alourdir ou Alléger, puis touche un poids pour modifier sa masse.', 'Touche un espace vide pour donner une petite impulsion ; observe ensuite le retour au calme.']
+  },
+  'folded-paper': {
+    concept: 'Une feuille possède deux faces colorées. Chaque déplacement propose un pli en volume, qui se rabat lorsque tu relâches. Les formes se transforment à chaque étape.',
+    gestures: ['Pars d’un point de la feuille et glisse vers l’endroit où tu souhaites le rabattre.', 'Relâche pour terminer le pli. Tu peux en superposer jusqu’à six.', 'Déplier annule le dernier pli ; Réinitialiser retrouve la feuille entière.']
+  },
+  'floating-ink': {
+    concept: 'Des pigments flottent dans un courant. Tu déposes la couleur, puis tu l’étires en filaments et en marbrures. Les couleurs se mélangent et s’estompent très lentement.',
+    gestures: ['En mode Encre, touche ou glisse pour déposer du pigment ; change de palette pour une autre couleur.', 'Remuer déplace le liquide sans ajouter de couleur.', 'Peigne crée plusieurs courants parallèles. Le réglage Fluidité change leur persistance.']
+  },
+  'gesture-echoes': {
+    concept: 'Ton geste devient une petite chorégraphie. Après le relâchement, des perles parcourent son tracé en boucle ; les gestes suivants ajoutent de nouveaux rythmes dans l’espace.',
+    gestures: ['Trace un mouvement, puis relâche pour créer une boucle.', 'Superpose jusqu’à cinq boucles ; la plus ancienne laisse ensuite sa place.', 'Pause suspend ou reprend la composition. Retirer enlève la dernière boucle.', 'Le tempo change la vitesse. Les boucles s’effacent doucement après environ une minute.']
   }
+
 };

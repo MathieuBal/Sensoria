@@ -830,3 +830,10 @@ body.in-scene .help-toggle { display: block; }
 .scene-guide .scene-guide__footer { color: #abb2d1; font-size: 12px; margin: 16px 0; }
 .scene-guide #guide-start { width: 100%; min-height: 48px; background: #373c69; color: #fff; }
 .help-toggle:focus-visible, .scene-guide button:focus-visible { outline: 2px solid #c0caff; outline-offset: 3px; }
+
+#studio-stage { position: fixed; inset: 0; z-index: 1; pointer-events: none; }
+body:not(.in-scene) #studio-stage { visibility: hidden; }
+.scene-status { position: fixed; z-index: 11; bottom: max(18px, env(safe-area-inset-bottom)); left: 50%; transform: translateX(-50%); width: max-content; max-width: calc(100vw - 32px); padding: 9px 16px; border-radius: 14px; background: rgba(13,18,29,.82); color: #ece8df; text-align: center; font-size: 12px; line-height: 1.5; pointer-events: none; }
+.scene-status:empty { display: none; }
+.scene-loading .card { pointer-events: none; opacity: .6; }
+.scene-tools { max-width: min(90vw, 450px); }

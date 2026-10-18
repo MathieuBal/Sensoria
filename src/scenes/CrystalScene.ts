@@ -1,3 +1,4 @@
+import { CanvasFade } from '../core/CanvasFade';
 import type { PointerSample, Scene, SceneContext, SceneSettings } from '../core/types';
 import { PALETTES, samplePalette } from '../palettes';
 
@@ -60,6 +61,7 @@ export class CrystalScene implements Scene {
   private readonly shards: Shard[] = [];
   private readonly last = new Map<number, { x: number; y: number }>();
   private colorBase = 0;
+  private fade = new CanvasFade();
   private lastTapMs = -Infinity;
   private lastTapX = 0;
   private lastTapY = 0;
@@ -124,6 +126,7 @@ export class CrystalScene implements Scene {
 
   update(dt: number, _t: number): void {
     this.colorBase += dt * 0.00002;
+    this.fade.apply(this.ctx, this.width, this.height, dt, [5,6,15], 18000);
     this.grow(dt);
     this.updateShards(dt);
   }
@@ -254,3 +257,4 @@ export class CrystalScene implements Scene {
     fx.globalCompositeOperation = 'source-over';
   }
 }
+

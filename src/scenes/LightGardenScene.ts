@@ -1,3 +1,4 @@
+import { CanvasFade } from '../core/CanvasFade';
 import type { PointerSample, Scene, SceneContext, SceneSettings } from '../core/types';
 import { PALETTES, samplePalette } from '../palettes';
 
@@ -72,6 +73,7 @@ export class LightGardenScene implements Scene {
   private readonly blooms: Bloom[] = [];
   private readonly last = new Map<number, { x: number; y: number }>();
   private colorBase = 0;
+  private fade = new CanvasFade();
   private lastTapMs = -Infinity;
   private lastTapX = 0;
   private lastTapY = 0;
@@ -177,10 +179,7 @@ export class LightGardenScene implements Scene {
   }
 
   private applyFade(dt: number): void {
-    const k = 1 - Math.exp(-dt / GARDEN_FADE_TAU);
-    this.ctx.globalCompositeOperation = 'source-over';
-    this.ctx.fillStyle = `rgba(5,6,16,${k})`;
-    this.ctx.fillRect(0, 0, this.width, this.height);
+    this.fade.apply(this.ctx, this.width, this.height, dt, [5,6,16], GARDEN_FADE_TAU);
   }
 
   private spawnTip(x: number, y: number, ang: number, gen: number, colorT: number): void {
@@ -310,3 +309,4 @@ export class LightGardenScene implements Scene {
     fx.globalCompositeOperation = 'source-over';
   }
 }
+

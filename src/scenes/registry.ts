@@ -25,11 +25,11 @@ export interface SceneMeta {
   gradient: string;
   /** Whether the scene is implemented and playable. */
   available: boolean;
-  create?: () => Scene;
+  create?: () => Scene | Promise<Scene>;
 }
 
 /**
- * The full catalogue (§4), in registry order — all 16 tableaux are playable.
+ * The full catalogue (§4), in registry order — all 22 tableaux are playable.
  * Three `id`s are historical (kept stable): `chromaflow` is now « Nuée »,
  * `living-paint` is « Ferrofluide », `paper-cut` is « Brise ».
  */
@@ -161,6 +161,42 @@ export const SCENES: SceneMeta[] = [
     gradient: 'linear-gradient(135deg,#134e5e,#71b280,#f6d365)',
     available: true,
     create: () => new TerrariumScene()
+  },
+  {
+    id: 'clay', name: 'Argile vivante',
+    tagline: 'Creuse, élève et lisse une matière qui garde ton empreinte.',
+    gradient: 'linear-gradient(135deg,#bb795a,#e0b78f,#635047)', available: true,
+    create: async () => new (await import('./studio/ClayScene')).ClayScene()
+  },
+  {
+    id: 'shadow-theatre', name: 'Théâtre d’ombres',
+    tagline: 'Déplace la lumière et transforme les silhouettes.',
+    gradient: 'linear-gradient(135deg,#e8d6b3,#94735b,#263d49)', available: true,
+    create: async () => new (await import('./studio/ShadowScene')).ShadowScene()
+  },
+  {
+    id: 'balance', name: 'Équilibre suspendu',
+    tagline: 'Poids, leviers et oscillations : compose un mobile.',
+    gradient: 'linear-gradient(135deg,#c1b5a2,#aa674d,#486c78)', available: true,
+    create: async () => new (await import('./studio/BalanceScene')).BalanceScene()
+  },
+  {
+    id: 'folded-paper', name: 'Papier plié',
+    tagline: 'Plie une feuille en volume, puis retrouve les gestes précédents.',
+    gradient: 'linear-gradient(135deg,#e7cda2,#c97c84,#657e80)', available: true,
+    create: async () => new (await import('./studio/PaperScene')).PaperScene()
+  },
+  {
+    id: 'floating-ink', name: 'Encres flottantes',
+    tagline: 'Dépose des pigments et étire-les dans le courant.',
+    gradient: 'linear-gradient(135deg,#eddec6,#d39153,#347c88)', available: true,
+    create: async () => new (await import('./studio/InkScene')).InkScene()
+  },
+  {
+    id: 'gesture-echoes', name: 'Échos du geste',
+    tagline: 'Tes gestes deviennent des boucles qui se répondent.',
+    gradient: 'linear-gradient(135deg,#10192b,#8c72bf,#eebf8f)', available: true,
+    create: async () => new (await import('./studio/EchoScene')).EchoScene()
   }
 ];
 

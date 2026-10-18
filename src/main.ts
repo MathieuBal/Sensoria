@@ -65,20 +65,39 @@ const gallery = new Gallery(
   enterScene
 );
 
-function enterScene(id: string): void {
+let sceneRequest = 0;
+async function enterScene(id: string): Promise<void> {
   const index = SCENES.findIndex((m) => m.id === id);
   const meta = SCENES[index];
   if (!meta?.available || !meta.create) return;
-  // Knob resets to its middle level on each entry; palette/auto/reduced persist.
-  settings.set('symmetry', 1);
-  const scene = meta.create();
-  sceneManager.mount(scene);
-  panelEl.hidden = true;
-  gallery.hide();
-  controls.bind(scene, pad2(index + 1));
+  const request = ++sceneRequest;
+  const status = document.getElementById('scene-status')!;
+  document.body.classList.add('scene-loading');
+  status.textContent = 'Préparation du tableau…';
+  try {
+    const scene = await meta.create();
+    if (request !== sceneRequest) return;
+    settings.set('symmetry', 1);
+    status.textContent = '';
+    sceneManager.mount(scene);
+    panelEl.hidden = true;
+    gallery.hide();
+    controls.bind(scene, pad2(index + 1));
+  } catch (error) {
+    if (request !== sceneRequest) return;
+    sceneManager.unmountCurrent();
+    gallery.show();
+    status.textContent = 'Ce tableau n’a pas pu démarrer. Réessaie avec l’accélération graphique activée ; les tableaux classiques restent disponibles.';
+    console.error('Scene initialization failed', error);
+  } finally {
+    if (request === sceneRequest) document.body.classList.remove('scene-loading');
+  }
 }
 
 function exitScene(): void {
+  sceneRequest++;
+  document.body.classList.remove('scene-loading');
+  document.getElementById('scene-status')!.textContent = '';
   controls.dismissHint();
   sceneManager.unmountCurrent();
   panelEl.hidden = true;
@@ -87,6 +106,7 @@ function exitScene(): void {
 
 document.getElementById('back')?.addEventListener('click', exitScene);
 window.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape' && document.body.classList.contains('scene-loading')) { exitScene(); return; }
   if (controls.helpOpen) return; // native dialog cancellation closes help only
   if (e.key !== 'Escape' || !document.body.classList.contains('in-scene')) return;
   // Escape closes an open panel first, otherwise returns to the gallery.

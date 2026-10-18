@@ -62,6 +62,7 @@ export class TerrariumScene implements Scene {
   private lastTapX = 0;
   private lastTapY = 0;
   private flip = 0;
+  private accumulator = 0;
 
   mount(c: SceneContext): void {
     this.ctx = c.ctx;
@@ -119,8 +120,12 @@ export class TerrariumScene implements Scene {
     }
   }
 
-  update(_dt: number, _t: number): void {
-    this.simulate();
+  update(dt: number, _t: number): void {
+    this.accumulator += Math.min(dt, 50);
+    while (this.accumulator >= 1000 / 60) {
+      this.simulate();
+      this.accumulator -= 1000 / 60;
+    }
     this.render();
   }
 
@@ -129,6 +134,7 @@ export class TerrariumScene implements Scene {
   }
 
   private build(): void {
+    this.accumulator = 0;
     this.cellPx = SAND_SCALE[this.level] * this.dpr;
     this.gw = Math.max(20, Math.floor(this.width / this.cellPx));
     this.gh = Math.max(20, Math.floor(this.height / this.cellPx));
