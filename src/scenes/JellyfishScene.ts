@@ -48,8 +48,8 @@ export class JellyfishScene implements Scene {
   readonly knobOptions = ['Calme', 'Vive', 'Essaim'] as const;
   readonly supportsAuto = false;
   readonly hint = {
-    title: 'Guide la méduse',
-    sub: 'Glisse : elle te suit · double-tap : pulse lumineux · Échap : réglages'
+    title: 'Attire la méduse',
+    sub: 'Maintiens : elle est attirée par ton geste · double-tap : pulse lumineux'
   };
 
   onPaletteChange?: (index: number) => void;
@@ -309,3 +309,4 @@ export class JellyfishScene implements Scene {
     this.fx.clearRect(0, 0, this.width, this.height);
   }
 }
+

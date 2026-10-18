@@ -21,9 +21,21 @@ export class TerrariumScene implements Scene {
   readonly knobLabel = 'Grain';
   readonly knobOptions = ['Gros', 'Moyen', 'Fin'] as const;
   readonly supportsAuto = false;
+  readonly toolOptions = ['Sable', 'Eau', 'Roche', 'Effacer'] as const;
+  onToolChange?: (index: number) => void;
+  get selectedTool(): number {
+    return [SAND, WATER, WALL, EMPTY].indexOf(this.material);
+  }
+  setTool(index: number): void {
+    const material = [SAND, WATER, WALL, EMPTY][index];
+    if (material === undefined) return;
+    this.material = material;
+    this.lastTapMs = -Infinity;
+    this.onToolChange?.(index);
+  }
   readonly hint = {
     title: 'Façonne le monde',
-    sub: 'Glisse pour verser · double-tap : sable / eau / roche · Échap : réglages'
+    sub: 'Choisis une matière en haut à droite, puis glisse pour dessiner'
   };
 
   onPaletteChange?: (index: number) => void;
@@ -50,6 +62,7 @@ export class TerrariumScene implements Scene {
   private lastTapX = 0;
   private lastTapY = 0;
   private flip = 0;
+  private accumulator = 0;
 
   mount(c: SceneContext): void {
     this.ctx = c.ctx;
@@ -90,7 +103,7 @@ export class TerrariumScene implements Scene {
       this.lastTapY = s.y;
       this.pointers.set(s.id, { x: s.x, y: s.y });
       if (isDouble) {
-        this.material = this.material === SAND ? WATER : this.material === WATER ? WALL : SAND;
+        this.setTool((this.selectedTool + 1) % this.toolOptions.length);
         navigator.vibrate?.(this.settings.reducedEffects ? 0 : 14);
       } else {
         this.paint(s.x, s.y, this.material);
@@ -107,8 +120,12 @@ export class TerrariumScene implements Scene {
     }
   }
 
-  update(_dt: number, _t: number): void {
-    this.simulate();
+  update(dt: number, _t: number): void {
+    this.accumulator += Math.min(dt, 50);
+    while (this.accumulator >= 1000 / 60) {
+      this.simulate();
+      this.accumulator -= 1000 / 60;
+    }
     this.render();
   }
 
@@ -117,6 +134,7 @@ export class TerrariumScene implements Scene {
   }
 
   private build(): void {
+    this.accumulator = 0;
     this.cellPx = SAND_SCALE[this.level] * this.dpr;
     this.gw = Math.max(20, Math.floor(this.width / this.cellPx));
     this.gh = Math.max(20, Math.floor(this.height / this.cellPx));
@@ -146,7 +164,7 @@ export class TerrariumScene implements Scene {
         if (Math.hypot(x, y) > r) continue;
         const i = py * this.gw + px;
         if (mat === EMPTY) {
-          if (this.cell[i] !== WALL) this.cell[i] = EMPTY;
+          this.cell[i] = EMPTY; // user-made rock is erasable; borders are excluded above
         } else if (this.cell[i] === EMPTY || mat === WALL) {
           if (Math.random() < 0.7 || mat === WALL) {
             this.cell[i] = mat;
@@ -267,3 +285,4 @@ export class TerrariumScene implements Scene {
     }
   }
 }
+
