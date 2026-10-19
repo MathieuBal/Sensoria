@@ -31,7 +31,7 @@ enregistré ni partagé, la composition s'efface en quittant le tableau.
 | Monde miniature    | Automate sable + eau sous verre (falling-sand).              | Grain       |
 | Argile vivante     | Surface 3D que l’on creuse, élève et lisse.                    | Outil       |
 | Théâtre d’ombres   | Lumière mobile et objets à réorganiser, ombres projetées.     | Lumière     |
-| Équilibre suspendu | Sculpture à poids mobiles, masses et oscillations amorties.  | Mouvement   |
+| Équilibre suspendu | Formes à déplacer directement, oscillations amorties.  | Mouvement   |
 | Papier plié        | Plis en volume suivant le geste, six étapes réversibles.     | Pli         |
 | Encres flottantes  | Pigments transportés par un fluide calculé sur le GPU.       | Fluidité    |
 | Échos du geste     | Cinq chorégraphies de perles issues des gestes dessinés.      | Tempo       |
@@ -116,8 +116,8 @@ les réglages sont déjà fournis par le socle.
 
 ## Stack
 
-Vite + TypeScript, Canvas 2D pour les 16 scènes d’origine et Three.js / WebGL2
-pour les six nouveaux tableaux. Le moteur 3D est chargé à l’ouverture d’un nouveau
+Vite + TypeScript, Canvas 2D pour 15 scènes et Three.js / WebGL2
+pour Ferrofluide et les six tableaux de l’atelier. Le moteur 3D est chargé à l’ouverture d’un nouveau
 tableau et réutilise un seul contexte GPU. La PWA peut ensuite le mettre en cache.
 Résolution plafonnée et adaptée à la qualité mesurée, ressources libérées à la
 sortie, historique des plis et des boucles borné. Les encres utilisent des textures
@@ -141,3 +141,23 @@ les limites des boucles et le repli sans WebGL2. Il produit des captures dans
 `test-results/` (ignoré par Git). `CHROMIUM_EXECUTABLE` permet de choisir un Chromium
 existant. Ces vérifications en navigateur ne remplacent pas un essai sur un vrai
 appareil mobile avant la publication.
+
+## Refonte après les retours utilisateurs
+
+- Ferrofluide : champ continu calculé dans un shader, reflets métalliques et
+  attraction amortie. Le moteur GPU est chargé à la demande comme pour l’atelier.
+- Équilibre : aucun mode ni réglage de masse à manipuler. On saisit directement
+  une forme, on la déplace sur son support et on relâche. Cibles tactiles élargies.
+- Cordes : sept cordes sur petit écran, dix sur grand écran. Tirer / relâcher,
+  balayage et gamme pentatonique. Le son est désactivé par défaut et ne démarre
+  qu’après activation de « Son doux ». Dix voix maximum, arrêt à la sortie et
+  suspension à la mise en arrière-plan.
+- Brise : prairie fleurie aux couleurs naturelles, graines, pétales et feuilles
+  soulevés par le geste. Au plus 180 éléments volants (70 en effets réduits),
+  disparition après neuf secondes.
+
+`npm run test:rework` vérifie ces quatre scènes avec captures bureau/mobile,
+activation et sortie audio, signal non silencieux, attraction/retour du fluide,
+prise directe des formes, amortissement des cordes et limites des particules.
+Le rendu mobile et les gestes sont simulés ; l’écoute et les performances sur
+un téléphone réel restent à apprécier avant publication.

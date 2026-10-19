@@ -12,7 +12,6 @@ import { JellyfishScene } from './JellyfishScene';
 import { ClothScene } from './ClothScene';
 import { PowderScene } from './PowderScene';
 import { StringsScene } from './StringsScene';
-import { FerroScene } from './FerroScene';
 import { GrassScene } from './GrassScene';
 import { TerrariumScene } from './TerrariumScene';
 
@@ -96,7 +95,7 @@ export const SCENES: SceneMeta[] = [
     tagline: 'Un métal liquide noir qui se hérisse de pointes vers ton doigt.',
     gradient: 'linear-gradient(135deg,#05050b,#1a1a2e,#3a3a5c,#8a8ab0)',
     available: true,
-    create: () => new FerroScene()
+    create: async () => new (await import('./FerroScene')).FerroScene()
   },
   {
     id: 'sound-ribbons',
@@ -149,7 +148,7 @@ export const SCENES: SceneMeta[] = [
   {
     id: 'paper-cut',
     name: 'Brise',
-    tagline: 'Une prairie de lumière ; ton geste couche les herbes en vagues.',
+    tagline: 'Soulève graines et pétales, puis laisse le vent les emporter.',
     gradient: 'linear-gradient(135deg,#bcd4e6,#e8e0d0,#b8d68a,#f6e3a1)',
     available: true,
     create: () => new GrassScene()
@@ -176,7 +175,7 @@ export const SCENES: SceneMeta[] = [
   },
   {
     id: 'balance', name: 'Équilibre suspendu',
-    tagline: 'Poids, leviers et oscillations : compose un mobile.',
+    tagline: 'Attrape, déplace, relâche : laisse le mobile danser.',
     gradient: 'linear-gradient(135deg,#c1b5a2,#aa674d,#486c78)', available: true,
     create: async () => new (await import('./studio/BalanceScene')).BalanceScene()
   },

@@ -6,14 +6,13 @@ interface Weight { mesh: T.Mesh<T.SphereGeometry, T.MeshStandardMaterial>; cord:
 export class BalanceScene extends StudioScene {
   readonly id = 'balance'; readonly name = 'Équilibre suspendu';
   readonly knobLabel = 'Mouvement'; readonly knobOptions = ['Amorti', 'Souple', 'Libre'];
-  override readonly toolOptions = ['Déplacer', 'Alourdir', 'Alléger'];
-  readonly hint = { title: 'Cherche l’équilibre', sub: 'Déplace les poids ou change leur masse.' };
+  readonly hint = { title: 'Cherche l’équilibre', sub: 'Attrape une forme, déplace-la et relâche.' };
   private root = new T.Group();
   private arms: T.Group[] = [];
   private weights: Weight[] = [];
   private angles = [0, 0, 0]; private velocities = [0, 0, 0];
   private picked: Weight | null = null; private activeId: number | null = null;
-  private ray = new T.Raycaster();
+  private grabOffset = 0;
   protected build(): void {
     this.backdrop('#c0b5a7', -1.8);
     const metal = new T.MeshStandardMaterial({ color: '#b79f74', metalness: .65, roughness: .32 });
@@ -34,8 +33,8 @@ export class BalanceScene extends StudioScene {
   }
   reset(): void {
     this.angles = [.08, -.2, .12]; this.velocities = [0, 0, 0]; this.picked = null; this.activeId = null;
-    this.weights.forEach((w, i) => { w.mass = 1; w.x = i % 2 ? 1.3 : -1.3; });
-    this.status('Saisis un poids · sa position et sa masse changent l’équilibre');
+    this.weights.forEach((w, i) => { w.mesh.material.emissive.set(0); w.mass = 1; w.x = i % 2 ? 1.3 : -1.3; });
+    this.status('Attrape une forme et glisse · relâche pour laisser le mobile danser');
   }
   override setPalette(index: number): void {
     super.setPalette(index);
@@ -45,17 +44,28 @@ export class BalanceScene extends StudioScene {
   onInput(s: PointerSample): void {
     if (s.phase === 'start' && this.activeId === null) {
       this.activeId = s.id;
-      this.ray.setFromCamera(new T.Vector2(s.x / this.width * 2 - 1, 1 - s.y / this.height * 2), this.camera);
-      const hit = this.ray.intersectObjects(this.weights.map(w => w.mesh))[0]?.object;
-      this.picked = this.weights.find(w => w.mesh === hit) ?? null;
-      if (this.picked && this.selectedTool > 0) this.picked.mass = clamp(this.picked.mass + (this.selectedTool === 1 ? .35 : -.35), .3, 2.8);
-      if (!this.picked) this.velocities[0] += clamp(s.x / this.width - .5, -.4, .4);
+      // Generous screen-space targets include the area just around each weight.
+      this.world.updateMatrixWorld(true);
+      let nearest = 36 * this.context.dpr;
+      this.picked = null;
+      for (const weight of this.weights) {
+        const world = weight.mesh.getWorldPosition(new T.Vector3());
+        const screen = world.clone().project(this.camera);
+        const distance = Math.hypot((screen.x + 1) * this.width / 2 - s.x, (1 - screen.y) * this.height / 2 - s.y);
+        if (distance < nearest) { nearest = distance; this.picked = weight; }
+      }
+      if (this.picked) {
+        const p = this.point(s), z = this.picked.mesh.getWorldPosition(new T.Vector3()).z;
+        this.grabOffset = this.picked.x - this.picked.arm.worldToLocal(new T.Vector3(p.x, p.y, z)).x;
+        this.picked.mesh.material.emissive.set('#3b2920');
+      } else this.velocities[0] += clamp(s.x / this.width - .5, -.4, .4);
+
     }
     if (s.id !== this.activeId) return;
-    if (s.phase === 'end') { this.activeId = null; this.picked = null; return; }
-    if (this.picked && this.selectedTool === 0) {
+    if (s.phase === 'end') { this.picked?.mesh.material.emissive.set(0); this.activeId = null; this.picked = null; return; }
+    if (this.picked) {
       const p = this.point(s), local = this.picked.arm.worldToLocal(new T.Vector3(p.x, p.y, this.picked.mesh.getWorldPosition(new T.Vector3()).z));
-      this.picked.x = clamp(local.x, -1.45, 1.45);
+      this.picked.x = clamp(local.x + this.grabOffset, -1.45, 1.45);
     }
   }
   protected tick(dt: number): void {
@@ -63,7 +73,7 @@ export class BalanceScene extends StudioScene {
     const steps = Math.max(1, Math.ceil(dt / (1 / 120))), h = dt / steps;
     for (let step = 0; step < steps; step++) {
       const leftMass = this.weights[0].mass + this.weights[1].mass, rightMass = this.weights[2].mass + this.weights[3].mass;
-      const targets = [clamp((leftMass - rightMass) * .32, -.65, .65), ...this.arms.map((_, i) => {
+      const targets = [clamp((leftMass - rightMass) * .32 - this.weights.reduce((sum, w) => sum + w.x * w.mass, 0) * .08, -.65, .65), ...this.arms.map((_, i) => {
         const a = this.weights[i * 2], b = this.weights[i * 2 + 1]; return clamp(-(a.mass * a.x + b.mass * b.x) * .32, -.85, .85);
       })];
       for (let i = 0; i < 3; i++) {
